@@ -14,10 +14,7 @@ struct ContentView: View {
             } else if viewModel.isReady {
                 HomeView()
             } else {
-                LoadingView(
-                    currentStep: viewModel.currentStep,
-                    gpsStatsText: viewModel.totalPhotoCount > 0 ? viewModel.gpsStatsText : ""
-                )
+                LoadingView(viewModel: viewModel)
             }
         }
         .task {

@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct LoadingView: View {
-    let currentStep: IndexingStep
-    let gpsStatsText: String
+    let viewModel: PhotoLibraryViewModel
 
     var body: some View {
         VStack(spacing: 40) {
@@ -17,13 +16,11 @@ struct LoadingView: View {
                 .font(.system(size: 56, weight: .bold))
 
             VStack(spacing: 30) {
-                Text(currentStep.label)
+                Text(viewModel.currentStep.label)
                     .font(.system(size: 32))
                     .foregroundStyle(.secondary)
-                    .contentTransition(.numericText())
-                    .animation(.easeInOut, value: currentStep)
 
-                if let progress = currentStep.progress {
+                if let progress = viewModel.currentStep.progress {
                     ProgressView(value: progress)
                         .progressViewStyle(.linear)
                         .frame(width: 500)
@@ -34,8 +31,8 @@ struct LoadingView: View {
                 }
             }
 
-            if !gpsStatsText.isEmpty {
-                Text(gpsStatsText)
+            if viewModel.totalPhotoCount > 0 {
+                Text(viewModel.gpsStatsText)
                     .font(.system(size: 24))
                     .foregroundStyle(.tertiary)
             }
