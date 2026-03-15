@@ -79,6 +79,7 @@ class ClusteringService {
 
             let neighbors = regionQuery(photo: photo, grid: grid, cellDegrees: cellDegrees, radius: radius)
             var clusterPhotos = neighbors
+            var clusterIds = Set(neighbors.map(\.id))
 
             // Expand cluster
             var queue = neighbors.filter { !visited.contains($0.id) }
@@ -92,7 +93,8 @@ class ClusteringService {
                     if !visited.contains(neighbor.id) {
                         queue.append(neighbor)
                     }
-                    if !clusterPhotos.contains(where: { $0.id == neighbor.id }) {
+                    if !clusterIds.contains(neighbor.id) {
+                        clusterIds.insert(neighbor.id)
                         clusterPhotos.append(neighbor)
                     }
                 }
