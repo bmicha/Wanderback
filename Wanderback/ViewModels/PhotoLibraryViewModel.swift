@@ -113,14 +113,13 @@ class PhotoLibraryViewModel {
 
         // Step 3: Clustering
         currentStep = .clusteringLocations
-        logger.info("Step: clusteringLocations")
+        logger.info("Step: clusteringLocations (\(self.photoLocations.count) photos)")
         await Task.yield()
 
-        let service = clusteringService
-        let photos = photoLocations
-        clusters = await Task.detached {
-            service.clusterPhotos(photos)
-        }.value
+        let startTime = CFAbsoluteTimeGetCurrent()
+        clusters = clusteringService.clusterPhotos(photoLocations)
+        let elapsed = CFAbsoluteTimeGetCurrent() - startTime
+        logger.info("Clustering done in \(elapsed)s → \(self.clusters.count) clusters")
 
         logger.info("Clusters: \(self.clusters.count)")
 
