@@ -11,11 +11,11 @@ class GeocoderService {
     /// Seuil de proximité pour réutiliser un cache existant (500m)
     static let proximityCacheThreshold: CLLocationDistance = 500
 
-    /// Délai minimal entre requêtes API (agressif, avec retry sur erreur)
-    private static let throttleDelay: Duration = .milliseconds(400)
+    /// Délai entre requêtes API (50 req/60s max imposé par Apple)
+    private static let throttleDelay: Duration = .milliseconds(1250)
 
     /// Délai de backoff après une erreur rate-limit
-    private static let retryDelay: Duration = .seconds(3)
+    private static let retryDelay: Duration = .seconds(10)
 
     /// Nombre max de retries par coordonnée
     private static let maxRetries = 2

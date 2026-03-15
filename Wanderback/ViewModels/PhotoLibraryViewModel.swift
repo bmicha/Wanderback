@@ -132,20 +132,40 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 4: Geocoding
-        currentStep = .geocoding(current: 0, total: clusters.count)
-        logger.info("Step: geocoding \(self.clusters.count) clusters")
-        for i in clusters.indices {
+        // Step 4: Geocoding — trier par taille (plus gros clusters d'abord)
+        let sortedIndices = clusters.indices.sorted { clusters[$0].photoCount > clusters[$1].photoCount }
+        let minimumGeocodedForPlay = 20
+        let totalToGeocode = clusters.count
+        var geocodedCount = 0
+
+        currentStep = .geocoding(current: 0, total: totalToGeocode)
+        logger.info("Step: geocoding \(totalToGeocode) clusters (play after \(minimumGeocodedForPlay))")
+
+        for i in sortedIndices {
             let coord = clusters[i].centerCoordinate
             if let cache = await geocoderService.reverseGeocode(coordinate: coord, modelContext: modelContext) {
                 clusters[i].displayName = cache.displayName
                 clusters[i].country = cache.country
             }
-            currentStep = .geocoding(current: i + 1, total: clusters.count)
+            geocodedCount += 1
+            currentStep = .geocoding(current: geocodedCount, total: totalToGeocode)
+
+            // Dès qu'on a assez de clusters géocodés, passer en mode prêt
+            if geocodedCount == minimumGeocodedForPlay {
+                currentStep = .ready
+                logger.info("Step: ready — \(geocodedCount)/\(totalToGeocode) geocoded, \(self.countryCount) countries")
+            }
         }
 
-        // Step 5: Ready
-        currentStep = .ready
-        logger.info("Step: ready — \(self.clusters.count) clusters, \(self.countryCount) countries")
+        // Fin du geocoding complet en arrière-plan
+        if geocodedCount > minimumGeocodedForPlay {
+            logger.info("Background geocoding complete: \(geocodedCount)/\(totalToGeocode)")
+        }
+
+        // Si moins de 20 clusters au total, on est prêt maintenant
+        if !isReady {
+            currentStep = .ready
+            logger.info("Step: ready — \(geocodedCount) clusters geocoded, \(self.countryCount) countries")
+        }
     }
 }
