@@ -12,7 +12,7 @@ struct ContentView: View {
             } else if viewModel.notEnoughPhotos {
                 notEnoughPhotosView
             } else if viewModel.isReady {
-                HomeView()
+                HomeView(viewModel: viewModel)
             } else {
                 LoadingView(viewModel: viewModel)
             }
