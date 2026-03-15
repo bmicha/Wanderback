@@ -11,8 +11,14 @@ class ClusteringService {
     /// Minimum de clusters requis pour jouer
     static let minimumClusters = 4
 
-    func clusterPhotos(_ photos: [PhotoLocation]) -> [LocationCluster] {
-        let clusters = dbscan(photos: photos, radius: Self.clusterRadius)
+    /// Fréquence des yields pendant le DBSCAN (toutes les N photos visitées)
+    private static let yieldInterval = 200
+
+    func clusterPhotos(
+        _ photos: [PhotoLocation],
+        onProgress: ((Int, Int) -> Void)? = nil
+    ) async -> [LocationCluster] {
+        let clusters = await dbscan(photos: photos, radius: Self.clusterRadius, onProgress: onProgress)
         logger.info("Created \(clusters.count) clusters from \(photos.count) photos")
         return clusters
     }
@@ -40,18 +46,16 @@ class ClusteringService {
         )
     }
 
-    private func neighborCells(for coordinate: CLLocationCoordinate2D, cellDegrees: Double, radius: CLLocationDistance) -> [GridCell] {
+    private func neighborCells(for coordinate: CLLocationCoordinate2D, cellDegrees: Double, radiusMeters: CLLocationDistance) -> [GridCell] {
         let centerRow = Int(floor(coordinate.latitude / cellDegrees))
         let centerCol = Int(floor(coordinate.longitude / cellDegrees))
 
-        // Nombre de cellules en longitude pour couvrir le rayon
         let cosLat = cos(coordinate.latitude * .pi / 180.0)
         let lonCells: Int
         if cosLat > 0.001 {
-            let lonDegrees = radius / (111_000.0 * cosLat)
+            let lonDegrees = radiusMeters / (111_000.0 * cosLat)
             lonCells = max(1, Int(ceil(lonDegrees / cellDegrees)))
         } else {
-            // Près des pôles, vérifier une large bande
             lonCells = 10
         }
 
@@ -66,13 +70,19 @@ class ClusteringService {
 
     // MARK: - DBSCAN
 
-    private func dbscan(photos: [PhotoLocation], radius: CLLocationDistance) -> [LocationCluster] {
+    private func dbscan(
+        photos: [PhotoLocation],
+        radius: CLLocationDistance,
+        onProgress: ((Int, Int) -> Void)?
+    ) async -> [LocationCluster] {
         let cellDegrees = radius / 111_000.0
         let radiusSquaredDeg = cellDegrees * cellDegrees
         let grid = buildGrid(photos: photos, cellDegrees: cellDegrees)
+        let total = photos.count
 
         var visited = Set<String>()
         var clusters: [LocationCluster] = []
+        var progressCount = 0
 
         for photo in photos {
             guard !visited.contains(photo.id) else { continue }
@@ -102,16 +112,23 @@ class ClusteringService {
             }
 
             let center = centroid(of: clusterPhotos)
-            let cluster = LocationCluster(
+            clusters.append(LocationCluster(
                 id: UUID(),
                 centerCoordinate: center,
                 photos: clusterPhotos,
                 displayName: "",
                 country: ""
-            )
-            clusters.append(cluster)
+            ))
+
+            // Report progress and yield periodically
+            progressCount += clusterPhotos.count
+            if progressCount % Self.yieldInterval < clusterPhotos.count {
+                onProgress?(visited.count, total)
+                await Task.yield()
+            }
         }
 
+        onProgress?(total, total)
         return clusters
     }
 
@@ -124,7 +141,7 @@ class ClusteringService {
         let lat1 = photo.coordinate.latitude
         let lon1 = photo.coordinate.longitude
         let cosLat = cos(lat1 * .pi / 180.0)
-        let cells = neighborCells(for: photo.coordinate, cellDegrees: cellDegrees, radius: sqrt(radiusSquaredDeg) * 111_000)
+        let cells = neighborCells(for: photo.coordinate, cellDegrees: cellDegrees, radiusMeters: sqrt(radiusSquaredDeg) * 111_000)
 
         var results: [PhotoLocation] = []
         for cell in cells {

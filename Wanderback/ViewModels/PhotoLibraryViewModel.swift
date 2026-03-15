@@ -7,7 +7,7 @@ import os
 enum IndexingStep: Equatable {
     case requestingAccess
     case scanningPhotos
-    case clusteringLocations
+    case clusteringLocations(current: Int, total: Int)
     case geocoding(current: Int, total: Int)
     case ready
 
@@ -15,7 +15,7 @@ enum IndexingStep: Equatable {
         switch self {
         case .requestingAccess: return "Demande d'accès aux photos..."
         case .scanningPhotos: return "Analyse des photos..."
-        case .clusteringLocations: return "Regroupement des lieux..."
+        case .clusteringLocations(let current, let total): return "Regroupement des lieux... (\(current)/\(total))"
         case .geocoding(let current, let total): return "Identification des lieux... (\(current)/\(total))"
         case .ready: return "Prêt !"
         }
@@ -23,6 +23,8 @@ enum IndexingStep: Equatable {
 
     var progress: Double? {
         switch self {
+        case .clusteringLocations(let current, let total) where total > 0:
+            return Double(current) / Double(total)
         case .geocoding(let current, let total) where total > 0:
             return Double(current) / Double(total)
         case .ready:
@@ -112,16 +114,17 @@ class PhotoLibraryViewModel {
         }
 
         // Step 3: Clustering
-        currentStep = .clusteringLocations
-        logger.info("Step: clusteringLocations (\(self.photoLocations.count) photos)")
+        let photoCount = photoLocations.count
+        currentStep = .clusteringLocations(current: 0, total: photoCount)
+        logger.info("Step: clusteringLocations (\(photoCount) photos)")
         await Task.yield()
 
         let startTime = CFAbsoluteTimeGetCurrent()
-        clusters = clusteringService.clusterPhotos(photoLocations)
+        clusters = await clusteringService.clusterPhotos(photoLocations) { [weak self] current, total in
+            self?.currentStep = .clusteringLocations(current: current, total: total)
+        }
         let elapsed = CFAbsoluteTimeGetCurrent() - startTime
         logger.info("Clustering done in \(elapsed)s → \(self.clusters.count) clusters")
-
-        logger.info("Clusters: \(self.clusters.count)")
 
         if clusters.count < ClusteringService.minimumClusters {
             notEnoughPhotos = true
