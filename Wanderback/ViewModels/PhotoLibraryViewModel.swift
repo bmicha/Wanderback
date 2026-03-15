@@ -33,6 +33,7 @@ enum IndexingStep: Equatable {
     }
 }
 
+@MainActor
 @Observable
 class PhotoLibraryViewModel {
     var authorizationStatus: PHAuthorizationStatus = .notDetermined
