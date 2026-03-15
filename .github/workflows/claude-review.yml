@@ -63,29 +63,21 @@ jobs:
             ### Détails
             <list of issues>
 
-      - name: Read Claude output
-        if: always()
-        id: claude-output
-        run: |
-          EXEC_FILE="${{ steps.review.outputs.execution_file }}"
-          if [ -n "$EXEC_FILE" ] && [ -f "$EXEC_FILE" ]; then
-            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-            echo "content<<$EOF" >> $GITHUB_OUTPUT
-            cat "$EXEC_FILE" >> $GITHUB_OUTPUT
-            echo "$EOF" >> $GITHUB_OUTPUT
-          else
-            echo "content=Le step Claude Code Review a échoué avant de produire une sortie. Vérifiez les logs de l'action." >> $GITHUB_OUTPUT
-          fi
-
       - name: Update comment with results
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
             const commentId = '${{ steps.comment.outputs.comment-id }}';
             const conclusion = '${{ steps.review.outcome }}';
             const success = conclusion === 'success';
-            const claudeOutput = process.env.CLAUDE_OUTPUT || 'Aucune sortie disponible.';
+            const execFile = '${{ steps.review.outputs.execution_file }}';
+
+            let claudeOutput = 'Le step Claude Code Review a échoué avant de produire une sortie. Vérifiez les logs de l\'action.';
+            if (execFile && fs.existsSync(execFile)) {
+              claudeOutput = fs.readFileSync(execFile, 'utf8').slice(0, 60000);
+            }
 
             const icon = success ? '✅' : '❌';
             const status = success
@@ -100,5 +92,3 @@ jobs:
               comment_id: parseInt(commentId),
               body: body
             });
-        env:
-          CLAUDE_OUTPUT: ${{ steps.claude-output.outputs.content }}
