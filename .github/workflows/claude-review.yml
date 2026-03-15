@@ -66,15 +66,14 @@ jobs:
         if: always()
         id: claude-output
         run: |
-          if [ -f "${{ steps.review.outputs.execution_file }}" ]; then
-            OUTPUT=$(cat "${{ steps.review.outputs.execution_file }}")
-            # Escape for GitHub Actions
+          EXEC_FILE="${{ steps.review.outputs.execution_file }}"
+          if [ -n "$EXEC_FILE" ] && [ -f "$EXEC_FILE" ]; then
             EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
             echo "content<<$EOF" >> $GITHUB_OUTPUT
-            echo "$OUTPUT" >> $GITHUB_OUTPUT
+            cat "$EXEC_FILE" >> $GITHUB_OUTPUT
             echo "$EOF" >> $GITHUB_OUTPUT
           else
-            echo "content=Aucune sortie disponible." >> $GITHUB_OUTPUT
+            echo "content=Le step Claude Code Review a échoué avant de produire une sortie. Vérifiez les logs de l'action." >> $GITHUB_OUTPUT
           fi
 
       - name: Update comment with results
