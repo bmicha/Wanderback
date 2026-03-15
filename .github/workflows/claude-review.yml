@@ -38,6 +38,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugins: "code-review@claude-code-plugins"
           prompt: |
             Review this pull request thoroughly. Focus on:
             - Security vulnerabilities
@@ -61,6 +62,20 @@ jobs:
             ### Détails
             <list of issues>
 
+      - name: Read Claude output
+        if: always()
+        id: claude-output
+        run: |
+          EXEC_FILE="${{ steps.review.outputs.execution_file }}"
+          if [ -n "$EXEC_FILE" ] && [ -f "$EXEC_FILE" ]; then
+            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+            echo "content<<$EOF" >> $GITHUB_OUTPUT
+            cat "$EXEC_FILE" >> $GITHUB_OUTPUT
+            echo "$EOF" >> $GITHUB_OUTPUT
+          else
+            echo "content=Le step Claude Code Review a échoué avant de produire une sortie. Vérifiez les logs de l'action." >> $GITHUB_OUTPUT
+          fi
+
       - name: Update comment with results
         if: always()
         uses: actions/github-script@v7
@@ -69,13 +84,14 @@ jobs:
             const commentId = '${{ steps.comment.outputs.comment-id }}';
             const conclusion = '${{ steps.review.outcome }}';
             const success = conclusion === 'success';
+            const claudeOutput = process.env.CLAUDE_OUTPUT || 'Aucune sortie disponible.';
 
-            let body;
-            if (success) {
-              body = '✅ **Claude Code Review** terminée.\n\nAucun problème bloquant détecté. Consultez les commentaires de review ci-dessus pour le détail.';
-            } else {
-              body = '❌ **Claude Code Review** terminée — **des problèmes bloquants ont été détectés**.\n\nConsultez les commentaires de review ci-dessus pour le détail. La PR ne peut pas être mergée tant que ces problèmes ne sont pas résolus.';
-            }
+            const icon = success ? '✅' : '❌';
+            const status = success
+              ? 'Aucun problème bloquant détecté.'
+              : '**Des problèmes bloquants ont été détectés.** La PR ne peut pas être mergée tant que ces problèmes ne sont pas résolus.';
+
+            const body = `${icon} **Claude Code Review** terminée.\n\n${status}\n\n<details>\n<summary>Détails de la review</summary>\n\n${claudeOutput}\n\n</details>`;
 
             await github.rest.issues.updateComment({
               owner: context.repo.owner,
@@ -83,3 +99,5 @@ jobs:
               comment_id: parseInt(commentId),
               body: body
             });
+        env:
+          CLAUDE_OUTPUT: ${{ steps.claude-output.outputs.content }}
