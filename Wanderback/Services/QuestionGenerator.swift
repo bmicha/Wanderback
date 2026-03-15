@@ -2,6 +2,7 @@ import Foundation
 import CoreLocation
 import os
 
+@MainActor
 class QuestionGenerator {
     private let logger = Logger(subsystem: "com.bastien.Wanderback", category: "QuestionGenerator")
 
@@ -78,19 +79,17 @@ class QuestionGenerator {
         // D'abord essayer avec la contrainte de distance stricte
         selected = selectWithDistance(
             from: &candidates,
+            alreadySelected: selected,
             correctCluster: correctCluster,
             count: count,
             minimumDistance: Self.minimumOptionDistance
         )
 
-        // Si pas assez, relâcher progressivement la contrainte
+        // Si pas assez, relâcher la contrainte avec les candidats restants
         if selected.count < count {
-            let remaining = candidates.filter { candidate in
-                !selected.contains(where: { $0.id == candidate.id })
-            }
-            var relaxedCandidates = remaining
             let additional = selectWithDistance(
-                from: &relaxedCandidates,
+                from: &candidates,
+                alreadySelected: selected,
                 correctCluster: correctCluster,
                 count: count - selected.count,
                 minimumDistance: 0
@@ -103,21 +102,26 @@ class QuestionGenerator {
 
     private func selectWithDistance(
         from candidates: inout [LocationCluster],
+        alreadySelected: [LocationCluster],
         correctCluster: LocationCluster,
         count: Int,
         minimumDistance: CLLocationDistance
     ) -> [LocationCluster] {
         var selected: [LocationCluster] = []
+        let allExisting = alreadySelected
 
         for candidate in candidates {
             guard selected.count < count else { break }
 
             let farEnoughFromCorrect = correctCluster.distance(to: candidate) >= minimumDistance
-            let farEnoughFromOthers = selected.allSatisfy { existing in
+            let farEnoughFromExisting = allExisting.allSatisfy { existing in
+                existing.distance(to: candidate) >= minimumDistance
+            }
+            let farEnoughFromNewlySelected = selected.allSatisfy { existing in
                 existing.distance(to: candidate) >= minimumDistance
             }
 
-            if farEnoughFromCorrect && farEnoughFromOthers {
+            if farEnoughFromCorrect && farEnoughFromExisting && farEnoughFromNewlySelected {
                 selected.append(candidate)
             }
         }
