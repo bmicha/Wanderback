@@ -16,7 +16,7 @@ struct ContentView: View {
             } else {
                 LoadingView(
                     currentStep: viewModel.currentStep,
-                    gpsStatsText: viewModel.isLoading ? viewModel.gpsStatsText : ""
+                    gpsStatsText: viewModel.totalPhotoCount > 0 ? viewModel.gpsStatsText : ""
                 )
             }
         }

@@ -75,6 +75,7 @@ class PhotoLibraryViewModel {
 
         // Step 1: Permission
         currentStep = .requestingAccess
+        logger.info("Step: requestingAccess")
         authorizationStatus = await photoIndexer.requestAuthorization()
         logger.info("Authorization status: \(self.authorizationStatus.rawValue)")
 
@@ -90,13 +91,19 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 2: Index photos (heavy sync work — run off main thread)
+        // Step 2: Index photos
         currentStep = .scanningPhotos
-        let result = await Task.detached { [photoIndexer] in
-            await photoIndexer.indexPhotos()
+        logger.info("Step: scanningPhotos")
+        await Task.yield()
+
+        let indexer = photoIndexer
+        let result = await Task.detached {
+            await indexer.indexPhotos()
         }.value
+
         totalPhotoCount = result.totalCount
         photoLocations = result.locations
+        logger.info("UI state: \(self.photoLocations.count) photos, \(self.totalPhotoCount) total")
 
         if photoLocations.count < PhotoIndexer.minimumDistinctLocations {
             notEnoughPhotos = true
@@ -104,12 +111,18 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 3: Clustering (heavy sync work — run off main thread)
+        // Step 3: Clustering
         currentStep = .clusteringLocations
+        logger.info("Step: clusteringLocations")
+        await Task.yield()
+
+        let service = clusteringService
         let photos = photoLocations
-        clusters = await Task.detached { [clusteringService] in
-            clusteringService.clusterPhotos(photos)
+        clusters = await Task.detached {
+            service.clusterPhotos(photos)
         }.value
+
+        logger.info("Clusters: \(self.clusters.count)")
 
         if clusters.count < ClusteringService.minimumClusters {
             notEnoughPhotos = true
@@ -117,8 +130,9 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 4: Geocoding (le plus long — progress par cluster)
+        // Step 4: Geocoding
         currentStep = .geocoding(current: 0, total: clusters.count)
+        logger.info("Step: geocoding \(self.clusters.count) clusters")
         for i in clusters.indices {
             let coord = clusters[i].centerCoordinate
             if let cache = await geocoderService.reverseGeocode(coordinate: coord, modelContext: modelContext) {
@@ -130,6 +144,6 @@ class PhotoLibraryViewModel {
 
         // Step 5: Ready
         currentStep = .ready
-        logger.info("Indexing complete: \(self.clusters.count) clusters, \(self.countryCount) countries")
+        logger.info("Step: ready — \(self.clusters.count) clusters, \(self.countryCount) countries")
     }
 }
