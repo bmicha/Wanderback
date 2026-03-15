@@ -92,8 +92,10 @@ class ClusteringService {
             var clusterPhotos = neighbors
             var clusterIds = Set(neighbors.map(\.id))
 
-            // Expand cluster
-            var queue = neighbors.filter { !visited.contains($0.id) }
+            // Expand cluster (with dedup to avoid queue explosion)
+            var queued = Set(neighbors.filter { !visited.contains($0.id) }.map(\.id))
+            var queue = neighbors.filter { queued.contains($0.id) }
+            var expandCount = 0
             while !queue.isEmpty {
                 let current = queue.removeFirst()
                 guard !visited.contains(current.id) else { continue }
@@ -101,13 +103,21 @@ class ClusteringService {
 
                 let currentNeighbors = regionQuery(photo: current, grid: grid, cellDegrees: cellDegrees, radiusSquaredDeg: radiusSquaredDeg)
                 for neighbor in currentNeighbors {
-                    if !visited.contains(neighbor.id) {
+                    if !visited.contains(neighbor.id) && !queued.contains(neighbor.id) {
                         queue.append(neighbor)
+                        queued.insert(neighbor.id)
                     }
                     if !clusterIds.contains(neighbor.id) {
                         clusterIds.insert(neighbor.id)
                         clusterPhotos.append(neighbor)
                     }
+                }
+
+                // Yield during large cluster expansion
+                expandCount += 1
+                if expandCount % Self.yieldInterval == 0 {
+                    onProgress?(visited.count, total)
+                    await Task.yield()
                 }
             }
 
