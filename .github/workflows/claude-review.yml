@@ -1,0 +1,39 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          review_comment_id: ${{ github.event.pull_request.number }}
+          use_bedrock: false
+          direct_prompt: |
+            Review this pull request thoroughly. Focus on:
+            - Security vulnerabilities
+            - Logic errors and bugs
+            - Breaking changes
+            - Missing error handling in critical paths
+
+            For each issue found, classify it as:
+            - 🚫 BLOCKING: Must be fixed before merge (security, bugs, data corruption)
+            - ⚠️ WARNING: Should be fixed but not a blocker
+
+            If you find ANY blocking issue, you MUST end your review by posting a review with request_changes.
+            If there are no blocking issues, approve the PR.
+
+            Do NOT flag: formatting, naming preferences, missing comments, or minor style issues.
