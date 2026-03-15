@@ -89,9 +89,11 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 2: Index photos
+        // Step 2: Index photos (heavy sync work — run off main thread)
         currentStep = .scanningPhotos
-        let result = await photoIndexer.indexPhotos()
+        let result = await Task.detached { [photoIndexer] in
+            await photoIndexer.indexPhotos()
+        }.value
         totalPhotoCount = result.totalCount
         photoLocations = result.locations
 
@@ -101,9 +103,12 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 3: Clustering
+        // Step 3: Clustering (heavy sync work — run off main thread)
         currentStep = .clusteringLocations
-        clusters = clusteringService.clusterPhotos(photoLocations)
+        let photos = photoLocations
+        clusters = await Task.detached { [clusteringService] in
+            clusteringService.clusterPhotos(photos)
+        }.value
 
         if clusters.count < ClusteringService.minimumClusters {
             notEnoughPhotos = true
