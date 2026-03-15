@@ -38,8 +38,6 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: "https://github.com/anthropics/claude-plugins-official.git"
-          plugins: "code-review@claude-plugins-official"
           prompt: |
             Review this pull request thoroughly. Focus on:
             - Security vulnerabilities
@@ -74,9 +72,24 @@ jobs:
             const success = conclusion === 'success';
             const execFile = '${{ steps.review.outputs.execution_file }}';
 
-            let claudeOutput = 'Le step Claude Code Review a échoué avant de produire une sortie. Vérifiez les logs de l\'action.';
+            let claudeOutput = '';
             if (execFile && fs.existsSync(execFile)) {
-              claudeOutput = fs.readFileSync(execFile, 'utf8').slice(0, 60000);
+              try {
+                const raw = fs.readFileSync(execFile, 'utf8');
+                const events = JSON.parse(raw);
+                const textMessages = events
+                  .filter(e => e.type === 'assistant' && e.message?.content)
+                  .flatMap(e => e.message.content)
+                  .filter(c => c.type === 'text')
+                  .map(c => c.text);
+                claudeOutput = textMessages.join('\n\n') || 'Aucun texte de review produit.';
+              } catch {
+                claudeOutput = fs.readFileSync(execFile, 'utf8').slice(0, 60000);
+              }
+            }
+
+            if (!claudeOutput) {
+              claudeOutput = 'Le step Claude Code Review a échoué avant de produire une sortie. Vérifiez les logs de l\'action.';
             }
 
             const icon = success ? '✅' : '❌';
