@@ -1,55 +1,62 @@
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     @State private var viewModel = PhotoLibraryViewModel()
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         Group {
-            if viewModel.isLoading {
-                ProgressView("Chargement des photos...")
-            } else if let error = viewModel.errorMessage {
-                VStack(spacing: 20) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.secondary)
-                    Text(error)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                }
+            if let error = viewModel.errorMessage {
+                errorView(message: error)
             } else if viewModel.notEnoughPhotos {
-                VStack(spacing: 20) {
-                    Image(systemName: "map.circle")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.orange)
-                    Text("Pas assez de photos géolocalisées")
-                        .font(.headline)
-                    Text("Wanderback a besoin d'au moins \(PhotoIndexer.minimumDistinctLocations) photos avec des coordonnées GPS pour fonctionner.")
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 40)
-                    Text(viewModel.gpsStatsText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } else if viewModel.hasAccess {
-                VStack(spacing: 16) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.green)
-                    Text(viewModel.gpsStatsText)
-                        .font(.headline)
-                }
+                notEnoughPhotosView
+            } else if viewModel.isReady {
+                HomeView()
             } else {
-                Text("Wanderback")
-                    .font(.largeTitle)
+                LoadingView(
+                    currentStep: viewModel.currentStep,
+                    gpsStatsText: viewModel.isLoading ? viewModel.gpsStatsText : ""
+                )
             }
         }
         .task {
-            await viewModel.requestAccessAndLoadPhotos()
+            await viewModel.requestAccessAndLoadPhotos(modelContext: modelContext)
+        }
+    }
+
+    private func errorView(message: String) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 80))
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.system(size: 32))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 80)
+        }
+    }
+
+    private var notEnoughPhotosView: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "map.circle")
+                .font(.system(size: 80))
+                .foregroundStyle(.orange)
+            Text("Pas assez de photos géolocalisées")
+                .font(.system(size: 38, weight: .semibold))
+            Text("Wanderback a besoin d'au moins \(PhotoIndexer.minimumDistinctLocations) lieux distincts pour fonctionner.")
+                .font(.system(size: 28))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 80)
+            Text(viewModel.gpsStatsText)
+                .font(.system(size: 24))
+                .foregroundStyle(.tertiary)
         }
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: LocationCache.self)
 }
