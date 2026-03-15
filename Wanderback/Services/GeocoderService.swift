@@ -3,7 +3,8 @@ import CoreLocation
 import SwiftData
 import os
 
-actor GeocoderService {
+@MainActor
+class GeocoderService {
     private let geocoder = CLGeocoder()
     private let logger = Logger(subsystem: "com.bastien.Wanderback", category: "GeocoderService")
 
@@ -12,6 +13,9 @@ actor GeocoderService {
 
     /// Délai entre chaque requête pour respecter la limite Apple (45 req/min)
     private static let throttleDelay: Duration = .milliseconds(1334) // ~45 req/min
+
+    /// Marge en degrés pour le bounding box (~1 km)
+    private static let boundingBoxDelta: Double = 0.009
 
     private var lastRequestTime: ContinuousClock.Instant?
 
@@ -45,7 +49,11 @@ actor GeocoderService {
             )
 
             modelContext.insert(cache)
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                logger.warning("Failed to save cache: \(error.localizedDescription)")
+            }
 
             logger.info("Geocoded: \(cache.displayName)")
             return cache
@@ -75,10 +83,21 @@ actor GeocoderService {
         near coordinate: CLLocationCoordinate2D,
         in modelContext: ModelContext
     ) -> LocationCache? {
-        let descriptor = FetchDescriptor<LocationCache>()
-        guard let allCached = try? modelContext.fetch(descriptor) else { return nil }
+        let minLat = coordinate.latitude - Self.boundingBoxDelta
+        let maxLat = coordinate.latitude + Self.boundingBoxDelta
+        let minLon = coordinate.longitude - Self.boundingBoxDelta
+        let maxLon = coordinate.longitude + Self.boundingBoxDelta
 
-        return allCached.first { cache in
+        let descriptor = FetchDescriptor<LocationCache>(
+            predicate: #Predicate<LocationCache> {
+                $0.latitude >= minLat && $0.latitude <= maxLat &&
+                $0.longitude >= minLon && $0.longitude <= maxLon
+            }
+        )
+
+        guard let nearby = try? modelContext.fetch(descriptor) else { return nil }
+
+        return nearby.first { cache in
             cache.distance(to: coordinate) < Self.proximityCacheThreshold
         }
     }

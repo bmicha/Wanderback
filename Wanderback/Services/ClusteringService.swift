@@ -17,9 +17,59 @@ class ClusteringService {
         return clusters
     }
 
+    // MARK: - Spatial Grid
+
+    private struct GridCell: Hashable {
+        let row: Int
+        let col: Int
+    }
+
+    private func buildGrid(photos: [PhotoLocation], cellDegrees: Double) -> [GridCell: [PhotoLocation]] {
+        var grid: [GridCell: [PhotoLocation]] = [:]
+        for photo in photos {
+            let cell = gridCell(for: photo.coordinate, cellDegrees: cellDegrees)
+            grid[cell, default: []].append(photo)
+        }
+        return grid
+    }
+
+    private func gridCell(for coordinate: CLLocationCoordinate2D, cellDegrees: Double) -> GridCell {
+        GridCell(
+            row: Int(floor(coordinate.latitude / cellDegrees)),
+            col: Int(floor(coordinate.longitude / cellDegrees))
+        )
+    }
+
+    private func neighborCells(for coordinate: CLLocationCoordinate2D, cellDegrees: Double, radius: CLLocationDistance) -> [GridCell] {
+        let centerRow = Int(floor(coordinate.latitude / cellDegrees))
+        let centerCol = Int(floor(coordinate.longitude / cellDegrees))
+
+        // Nombre de cellules en longitude pour couvrir le rayon
+        let cosLat = cos(coordinate.latitude * .pi / 180.0)
+        let lonCells: Int
+        if cosLat > 0.001 {
+            let lonDegrees = radius / (111_000.0 * cosLat)
+            lonCells = max(1, Int(ceil(lonDegrees / cellDegrees)))
+        } else {
+            // Près des pôles, vérifier une large bande
+            lonCells = 10
+        }
+
+        var cells: [GridCell] = []
+        for dr in -1...1 {
+            for dc in -lonCells...lonCells {
+                cells.append(GridCell(row: centerRow + dr, col: centerCol + dc))
+            }
+        }
+        return cells
+    }
+
     // MARK: - DBSCAN
 
     private func dbscan(photos: [PhotoLocation], radius: CLLocationDistance) -> [LocationCluster] {
+        let cellDegrees = radius / 111_000.0
+        let grid = buildGrid(photos: photos, cellDegrees: cellDegrees)
+
         var visited = Set<String>()
         var clusters: [LocationCluster] = []
 
@@ -27,7 +77,7 @@ class ClusteringService {
             guard !visited.contains(photo.id) else { continue }
             visited.insert(photo.id)
 
-            let neighbors = regionQuery(photo: photo, photos: photos, radius: radius)
+            let neighbors = regionQuery(photo: photo, grid: grid, cellDegrees: cellDegrees, radius: radius)
             var clusterPhotos = neighbors
 
             // Expand cluster
@@ -37,7 +87,7 @@ class ClusteringService {
                 guard !visited.contains(current.id) else { continue }
                 visited.insert(current.id)
 
-                let currentNeighbors = regionQuery(photo: current, photos: photos, radius: radius)
+                let currentNeighbors = regionQuery(photo: current, grid: grid, cellDegrees: cellDegrees, radius: radius)
                 for neighbor in currentNeighbors {
                     if !visited.contains(neighbor.id) {
                         queue.append(neighbor)
@@ -64,14 +114,24 @@ class ClusteringService {
 
     private func regionQuery(
         photo: PhotoLocation,
-        photos: [PhotoLocation],
+        grid: [GridCell: [PhotoLocation]],
+        cellDegrees: Double,
         radius: CLLocationDistance
     ) -> [PhotoLocation] {
         let location = CLLocation(latitude: photo.coordinate.latitude, longitude: photo.coordinate.longitude)
-        return photos.filter { other in
-            let otherLocation = CLLocation(latitude: other.coordinate.latitude, longitude: other.coordinate.longitude)
-            return location.distance(from: otherLocation) <= radius
+        let cells = neighborCells(for: photo.coordinate, cellDegrees: cellDegrees, radius: radius)
+
+        var results: [PhotoLocation] = []
+        for cell in cells {
+            guard let candidates = grid[cell] else { continue }
+            for candidate in candidates {
+                let candidateLocation = CLLocation(latitude: candidate.coordinate.latitude, longitude: candidate.coordinate.longitude)
+                if location.distance(from: candidateLocation) <= radius {
+                    results.append(candidate)
+                }
+            }
         }
+        return results
     }
 
     private func centroid(of photos: [PhotoLocation]) -> CLLocationCoordinate2D {

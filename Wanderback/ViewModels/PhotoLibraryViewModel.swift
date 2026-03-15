@@ -31,9 +31,9 @@ class PhotoLibraryViewModel {
 
         switch authorizationStatus {
         case .authorized, .limited:
-            let assets = await photoIndexer.fetchPhotos()
-            totalPhotoCount = assets.count
-            photoLocations = photoIndexer.filterPhotosWithGPS(from: assets)
+            let result = await photoIndexer.indexPhotos()
+            totalPhotoCount = result.totalCount
+            photoLocations = result.locations
 
             if photoLocations.count < PhotoIndexer.minimumDistinctLocations {
                 notEnoughPhotos = true

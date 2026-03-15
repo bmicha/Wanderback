@@ -8,46 +8,39 @@ class PhotoIndexer {
 
     static let minimumDistinctLocations = 4
 
+    struct IndexResult {
+        let locations: [PhotoLocation]
+        let totalCount: Int
+    }
+
     func requestAuthorization() async -> PHAuthorizationStatus {
         await PHPhotoLibrary.requestAuthorization(for: .readWrite)
     }
 
-    func fetchPhotos() async -> [PHAsset] {
+    func indexPhotos() async -> IndexResult {
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
 
         let results = PHAsset.fetchAssets(with: fetchOptions)
-        var assets: [PHAsset] = []
-        results.enumerateObjects { asset, _, _ in
-            assets.append(asset)
-        }
-
-        logger.info("Found \(assets.count) photos in library")
-        return assets
-    }
-
-    func filterPhotosWithGPS(from assets: [PHAsset]) -> [PhotoLocation] {
+        let totalCount = results.count
         var locations: [PhotoLocation] = []
 
-        for asset in assets {
-            guard let location = asset.location else { continue }
+        results.enumerateObjects { [self] asset, _, _ in
+            guard let location = asset.location else { return }
             let coord = location.coordinate
+            guard isValidCoordinate(coord) else { return }
 
-            // Exclure coordonnées (0,0) ou aberrantes
-            guard isValidCoordinate(coord) else { continue }
-
-            let photoLocation = PhotoLocation(
+            locations.append(PhotoLocation(
                 id: asset.localIdentifier,
                 coordinate: coord,
                 dateTaken: asset.creationDate ?? .now,
                 assetIdentifier: asset.localIdentifier
-            )
-            locations.append(photoLocation)
+            ))
         }
 
-        logger.info("\(locations.count) photos with GPS / \(assets.count) total")
-        return locations
+        logger.info("\(locations.count) photos with GPS / \(totalCount) total")
+        return IndexResult(locations: locations, totalCount: totalCount)
     }
 
     private func isValidCoordinate(_ coord: CLLocationCoordinate2D) -> Bool {
