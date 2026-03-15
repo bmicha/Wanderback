@@ -16,7 +16,7 @@ struct LoadingView: View {
             Text("Wanderback")
                 .font(.system(size: 56, weight: .bold))
 
-            VStack(spacing: 20) {
+            VStack(spacing: 30) {
                 Text(currentStep.label)
                     .font(.system(size: 32))
                     .foregroundStyle(.secondary)
@@ -30,7 +30,7 @@ struct LoadingView: View {
                         .animation(.easeInOut, value: progress)
                 } else {
                     ProgressView()
-                        .frame(width: 500)
+                        .scaleEffect(1.5)
                 }
             }
 
