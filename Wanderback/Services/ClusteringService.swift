@@ -68,6 +68,7 @@ class ClusteringService {
 
     private func dbscan(photos: [PhotoLocation], radius: CLLocationDistance) -> [LocationCluster] {
         let cellDegrees = radius / 111_000.0
+        let radiusSquaredDeg = cellDegrees * cellDegrees
         let grid = buildGrid(photos: photos, cellDegrees: cellDegrees)
 
         var visited = Set<String>()
@@ -77,7 +78,7 @@ class ClusteringService {
             guard !visited.contains(photo.id) else { continue }
             visited.insert(photo.id)
 
-            let neighbors = regionQuery(photo: photo, grid: grid, cellDegrees: cellDegrees, radius: radius)
+            let neighbors = regionQuery(photo: photo, grid: grid, cellDegrees: cellDegrees, radiusSquaredDeg: radiusSquaredDeg)
             var clusterPhotos = neighbors
             var clusterIds = Set(neighbors.map(\.id))
 
@@ -88,7 +89,7 @@ class ClusteringService {
                 guard !visited.contains(current.id) else { continue }
                 visited.insert(current.id)
 
-                let currentNeighbors = regionQuery(photo: current, grid: grid, cellDegrees: cellDegrees, radius: radius)
+                let currentNeighbors = regionQuery(photo: current, grid: grid, cellDegrees: cellDegrees, radiusSquaredDeg: radiusSquaredDeg)
                 for neighbor in currentNeighbors {
                     if !visited.contains(neighbor.id) {
                         queue.append(neighbor)
@@ -118,17 +119,20 @@ class ClusteringService {
         photo: PhotoLocation,
         grid: [GridCell: [PhotoLocation]],
         cellDegrees: Double,
-        radius: CLLocationDistance
+        radiusSquaredDeg: Double
     ) -> [PhotoLocation] {
-        let location = CLLocation(latitude: photo.coordinate.latitude, longitude: photo.coordinate.longitude)
-        let cells = neighborCells(for: photo.coordinate, cellDegrees: cellDegrees, radius: radius)
+        let lat1 = photo.coordinate.latitude
+        let lon1 = photo.coordinate.longitude
+        let cosLat = cos(lat1 * .pi / 180.0)
+        let cells = neighborCells(for: photo.coordinate, cellDegrees: cellDegrees, radius: sqrt(radiusSquaredDeg) * 111_000)
 
         var results: [PhotoLocation] = []
         for cell in cells {
             guard let candidates = grid[cell] else { continue }
             for candidate in candidates {
-                let candidateLocation = CLLocation(latitude: candidate.coordinate.latitude, longitude: candidate.coordinate.longitude)
-                if location.distance(from: candidateLocation) <= radius {
+                let dLat = candidate.coordinate.latitude - lat1
+                let dLon = (candidate.coordinate.longitude - lon1) * cosLat
+                if dLat * dLat + dLon * dLon <= radiusSquaredDeg {
                     results.append(candidate)
                 }
             }
