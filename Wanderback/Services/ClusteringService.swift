@@ -5,8 +5,8 @@ import os
 class ClusteringService {
     private let logger = Logger(subsystem: "com.bastien.Wanderback", category: "ClusteringService")
 
-    /// Rayon DBSCAN en mètres (5 km)
-    static let clusterRadius: CLLocationDistance = 5_000
+    /// Rayon DBSCAN en mètres (25 km — niveau métropole pour quiz "Ville, Pays")
+    static let clusterRadius: CLLocationDistance = 25_000
 
     /// Minimum de clusters requis pour jouer
     static let minimumClusters = 4
