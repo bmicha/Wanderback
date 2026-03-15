@@ -16,12 +16,27 @@ struct ContentView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
+            } else if viewModel.notEnoughPhotos {
+                VStack(spacing: 20) {
+                    Image(systemName: "map.circle")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.orange)
+                    Text("Pas assez de photos géolocalisées")
+                        .font(.headline)
+                    Text("Wanderback a besoin d'au moins \(PhotoIndexer.minimumDistinctLocations) photos avec des coordonnées GPS pour fonctionner.")
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 40)
+                    Text(viewModel.gpsStatsText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             } else if viewModel.hasAccess {
                 VStack(spacing: 16) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 60))
                         .foregroundStyle(.green)
-                    Text("\(viewModel.assets.count) photos trouvées")
+                    Text(viewModel.gpsStatsText)
                         .font(.headline)
                 }
             } else {
