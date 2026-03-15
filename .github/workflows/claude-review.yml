@@ -33,8 +33,7 @@ jobs:
         id: review
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          use_bedrock: false
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           direct_prompt: |
             Review this pull request thoroughly. Focus on:
             - Security vulnerabilities
