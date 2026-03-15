@@ -11,8 +11,14 @@ class GeocoderService {
     /// Seuil de proximité pour réutiliser un cache existant (500m)
     static let proximityCacheThreshold: CLLocationDistance = 500
 
-    /// Délai entre chaque requête pour respecter la limite Apple (45 req/min)
-    private static let throttleDelay: Duration = .milliseconds(1334) // ~45 req/min
+    /// Délai minimal entre requêtes API (agressif, avec retry sur erreur)
+    private static let throttleDelay: Duration = .milliseconds(400)
+
+    /// Délai de backoff après une erreur rate-limit
+    private static let retryDelay: Duration = .seconds(3)
+
+    /// Nombre max de retries par coordonnée
+    private static let maxRetries = 2
 
     /// Marge en degrés pour le bounding box (~1 km)
     private static let boundingBoxDelta: Double = 0.009
@@ -28,55 +34,42 @@ class GeocoderService {
             return cached
         }
 
-        // 2. Throttle
-        await throttle()
-
-        // 3. Géocoder
+        // 2. Géocoder avec retry sur rate-limit
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        do {
-            guard let placemark = try await geocoder.reverseGeocodeLocation(location).first else {
-                logger.warning("No placemark for \(coordinate.latitude), \(coordinate.longitude)")
-                return nil
-            }
 
-            let cache = LocationCache(
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude,
-                city: placemark.locality,
-                country: placemark.country ?? "Unknown",
-                countryCode: placemark.isoCountryCode ?? "??",
-                region: placemark.administrativeArea
-            )
+        for attempt in 0...Self.maxRetries {
+            await throttle()
 
-            modelContext.insert(cache)
             do {
-                try modelContext.save()
+                guard let placemark = try await geocoder.reverseGeocodeLocation(location).first else {
+                    logger.warning("No placemark for \(coordinate.latitude), \(coordinate.longitude)")
+                    return nil
+                }
+
+                let cache = LocationCache(
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude,
+                    city: placemark.locality,
+                    country: placemark.country ?? "Unknown",
+                    countryCode: placemark.isoCountryCode ?? "??",
+                    region: placemark.administrativeArea
+                )
+
+                modelContext.insert(cache)
+                try? modelContext.save()
+
+                return cache
             } catch {
-                logger.warning("Failed to save cache: \(error.localizedDescription)")
-            }
-
-            logger.info("Geocoded: \(cache.displayName)")
-            return cache
-        } catch {
-            logger.warning("Geocoding failed for \(coordinate.latitude), \(coordinate.longitude): \(error.localizedDescription)")
-            return nil
-        }
-    }
-
-    func batchGeocode(
-        coordinates: [CLLocationCoordinate2D],
-        modelContext: ModelContext
-    ) async -> [CLLocationCoordinate2D: LocationCache] {
-        var results: [CLLocationCoordinate2D: LocationCache] = [:]
-
-        for coordinate in coordinates {
-            if let cache = await reverseGeocode(coordinate: coordinate, modelContext: modelContext) {
-                results[coordinate] = cache
+                if attempt < Self.maxRetries {
+                    logger.info("Geocoding retry \(attempt + 1) for \(coordinate.latitude), \(coordinate.longitude)")
+                    try? await Task.sleep(for: Self.retryDelay)
+                } else {
+                    logger.warning("Geocoding failed after \(Self.maxRetries) retries: \(error.localizedDescription)")
+                }
             }
         }
 
-        logger.info("Batch geocoded: \(results.count)/\(coordinates.count) succeeded")
-        return results
+        return nil
     }
 
     private func findCachedLocation(
