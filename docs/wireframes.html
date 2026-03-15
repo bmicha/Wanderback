@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderback — Wireframes Apple TV</title>
+<style>
+  /* ============================================================
+     BASE & TYPOGRAPHY
+     Police système large — TV se lit à 3m
+  ============================================================ */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif;
+    color: #f0f0f0;
+    padding: 40px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 48px;
+  }
+
+  /* Navigation entre les écrans */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #252540;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .nav-btn.active, .nav-btn:hover {
+    background: #3a7bd5;
+    border-color: #3a7bd5;
+    color: #fff;
+  }
+
+  /* ============================================================
+     ÉCRAN TV — ratio 16:9, simulé en 960×540
+     (moitié de 1920×1080 pour tenir dans la page)
+     Safe zone = 48px de chaque côté (~5% de 960px)
+  ============================================================ */
+  .screen-wrapper {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .screen-wrapper.visible { display: flex; }
+
+  .screen-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tv-screen {
+    width: 960px;
+    height: 540px;
+    background: #0a0a1a;
+    border-radius: 8px;
+    border: 2px solid #333;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  /* Safe zone indicator — zone sûre TV */
+  .safe-zone {
+    position: absolute;
+    inset: 27px 48px;  /* 5% vertical, 5% horizontal de 960×540 */
+    border: 1px dashed rgba(255,100,100,0.2);
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .safe-zone-label {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 9px;
+    color: rgba(255,100,100,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ============================================================
+     NOTES D'ANNOTATION
+  ============================================================ */
+  .annotations {
+    width: 960px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .annotation {
+    background: #1e2030;
+    border-left: 3px solid #3a7bd5;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #ddd; display: block; margin-bottom: 3px; }
+  .annotation.warn { border-color: #e67e22; }
+  .annotation.success { border-color: #27ae60; }
+
+  /* ============================================================
+     ÉCRAN 1 — SPLASH / ACCUEIL
+  ============================================================ */
+  #screen-splash .tv-screen {
+    background: linear-gradient(135deg, #0d1117 0%, #0f2027 50%, #1a0a2e 100%);
+  }
+  .splash-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  .splash-photos-strip {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    gap: 0;
+    opacity: 0.12;
+  }
+  .photo-placeholder {
+    flex: 1;
+    background: linear-gradient(135deg, #3a7bd5, #6c5ce7, #e17055, #00b894);
+    background-size: 400% 400%;
+  }
+  .photo-placeholder:nth-child(2) { background: linear-gradient(135deg, #e17055, #d63031, #6c5ce7); }
+  .photo-placeholder:nth-child(3) { background: linear-gradient(135deg, #00b894, #00cec9, #3a7bd5); }
+  .photo-placeholder:nth-child(4) { background: linear-gradient(135deg, #fdcb6e, #e17055, #d63031); }
+  .photo-placeholder:nth-child(5) { background: linear-gradient(135deg, #6c5ce7, #a29bfe, #3a7bd5); }
+
+  .splash-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+  }
+  .app-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #3a7bd5, #6c5ce7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 32px rgba(58,123,213,0.5);
+  }
+  .app-title {
+    font-size: 52px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 20px rgba(58,123,213,0.4);
+  }
+  .app-tagline {
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+  .splash-cta {
+    margin-top: 40px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+  .btn-primary {
+    padding: 14px 36px;
+    background: #3a7bd5;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    border: none;
+    box-shadow: 0 0 0 4px rgba(58,123,213,0.4), 0 8px 20px rgba(58,123,213,0.3);
+    transform: scale(1.04);
+  }
+  .btn-secondary {
+    padding: 14px 36px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .splash-bottom {
+    position: absolute;
+    bottom: 36px;
+    left: 48px;
+    right: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .photo-count {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+  }
+  .remote-hint {
+    font-size: 13px;
+    color: rgba(255,255,255,0.25);
+    text-align: right;
+  }
+
+  /* ============================================================
+     ÉCRAN 2 — SÉLECTION DE MODE
+  ============================================================ */
+  #screen-mode .tv-screen {
+    background: #0d1117;
+  }
+  .mode-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 60px;
+  }
+  .mode-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 6px;
+  }
+  .mode-subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 36px;
+  }
+  .mode-cards {
+    display: flex;
+    gap: 24px;
+    flex: 1;
+  }
+  .mode-card {
+    flex: 1;
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .mode-card.focused {
+    border-color: #3a7bd5;
+    box-shadow: 0 0 0 3px rgba(58,123,213,0.3), 0 20px 40px rgba(0,0,0,0.4);
+    transform: scale(1.02);
+  }
+  .mode-card.souvenir {
+    background: linear-gradient(145deg, #1a2035, #0f1a30);
+  }
+  .mode-card.challenge {
+    background: linear-gradient(145deg, #1a1a25, #200f30);
+  }
+  .mode-card-emoji { font-size: 44px; margin-bottom: 14px; }
+  .mode-card-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .mode-card-desc {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .mode-card-tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .tag-blue { background: rgba(58,123,213,0.2); color: #74a9f5; }
+  .tag-green { background: rgba(39,174,96,0.2); color: #6fcf97; }
+  .tag-orange { background: rgba(230,126,34,0.2); color: #f0984c; }
+  .tag-purple { background: rgba(108,92,231,0.2); color: #b39ddb; }
+
+  .mode-rounds {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .mode-rounds-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .rounds-options {
+    display: flex;
+    gap: 10px;
+  }
+  .round-opt {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.4);
+  }
+  .round-opt.selected {
+    background: #3a7bd5;
+    color: #fff;
+    box-shadow: 0 0 0 2px rgba(58,123,213,0.4);
+  }
+
+  /* ============================================================
+     ÉCRAN 3 — JEU (PHOTO + OPTIONS)
+  ============================================================ */
+  #screen-game .tv-screen { background: #000; }
+  .game-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .game-photo-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-photo-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d4a6b 30%, #3d5a6b 60%, #2a3a5a 100%);
+  }
+  /* Simulation d'une photo de vacances */
+  .photo-city-sim {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background: linear-gradient(0deg, #8B7355 0%, #A0896B 40%, #7B6B5A 70%, transparent 100%);
+    opacity: 0.7;
+  }
+  .photo-sky-sim {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, #1a5276 0%, #2980b9 60%, #5dade2 100%);
+    opacity: 0.6;
+  }
+  .photo-building {
+    position: absolute;
+    background: #5D4E37;
+    bottom: 30px;
+  }
+  .b1 { width: 60px; height: 120px; left: 200px; border-radius: 4px 4px 0 0; }
+  .b2 { width: 40px; height: 90px; left: 270px; }
+  .b3 { width: 80px; height: 140px; left: 320px; border-radius: 8px 8px 0 0; }
+  .b4 { width: 50px; height: 100px; left: 410px; }
+  .b5 { width: 70px; height: 160px; left: 470px; border-radius: 4px 4px 0 0; }
+  .b6 { width: 45px; height: 85px; left: 550px; }
+  .b7 { width: 90px; height: 130px; left: 605px; border-radius: 4px 4px 0 0; }
+
+  .game-hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+  }
+  .hud-round {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+  .hud-round span { color: #fff; font-weight: 700; }
+  .hud-score {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.4);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+  }
+  .hud-score-value { font-weight: 700; font-size: 18px; color: #fff; }
+  .hud-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .timer-bar-bg {
+    width: 120px;
+    height: 6px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+  }
+  .timer-bar-fill {
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #f39c12);
+    border-radius: 3px;
+  }
+  .timer-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f39c12;
+    min-width: 30px;
+    text-align: right;
+  }
+
+  .game-options-area {
+    padding: 0 48px 20px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
+  }
+  .question-label {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-btn {
+    padding: 14px 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+  }
+  .option-btn.focused {
+    background: rgba(58,123,213,0.3);
+    border-color: #3a7bd5;
+    box-shadow: 0 0 0 2px rgba(58,123,213,0.4);
+    transform: scale(1.02);
+  }
+  .option-btn.correct {
+    background: rgba(39,174,96,0.3);
+    border-color: #27ae60;
+  }
+  .option-btn.wrong {
+    background: rgba(231,76,60,0.2);
+    border-color: rgba(231,76,60,0.4);
+    opacity: 0.5;
+  }
+  .option-flag { font-size: 26px; }
+  .option-text { flex: 1; }
+  .option-city { font-size: 18px; font-weight: 600; color: #fff; }
+  .option-country { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+  .option-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     ÉCRAN 4 — RÉVÉLATION (Mode Souvenir)
+  ============================================================ */
+  #screen-reveal .tv-screen {
+    background: #050a15;
+  }
+  .reveal-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+  }
+  .reveal-left {
+    width: 48%;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 32px 36px 60px;
+  }
+  .reveal-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .status-correct { background: rgba(39,174,96,0.25); color: #6fcf97; }
+  .status-wrong { background: rgba(231,76,60,0.25); color: #eb5757; }
+  .score-gained {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f1c40f;
+  }
+
+  .reveal-city-name {
+    font-size: 46px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .reveal-country {
+    font-size: 20px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reveal-meta {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.55);
+  }
+  .meta-icon { font-size: 18px; }
+  .meta-value { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+  .reveal-other-photos {
+    margin-top: 24px;
+    flex: 1;
+  }
+  .reveal-photos-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+  }
+  .reveal-photos-strip {
+    display: flex;
+    gap: 8px;
+    height: 60px;
+  }
+  .reveal-photo-thumb {
+    flex: 1;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .thumb-1 { background: linear-gradient(135deg, #e17055, #d63031); }
+  .thumb-2 { background: linear-gradient(135deg, #3a7bd5, #00b894); }
+  .thumb-3 { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+  .thumb-4 { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+  .thumb-5 { background: linear-gradient(135deg, #00b894, #00cec9); }
+
+  .reveal-cta {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .btn-reveal-next {
+    padding: 12px 28px;
+    background: #3a7bd5;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(58,123,213,0.35);
+    transform: scale(1.02);
+  }
+  .btn-reveal-skip {
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px;
+    font-size: 16px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .reveal-right {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0f2a4a 0%, #1a3a5a 30%, #0d2035 60%, #112840 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Simulation grille de carte */
+  .map-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.15;
+    background-image:
+      linear-gradient(rgba(58,123,213,0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,123,213,0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .map-continent {
+    position: absolute;
+    background: rgba(58,123,213,0.12);
+    border: 1px solid rgba(58,123,213,0.2);
+    border-radius: 40%;
+  }
+  .c1 { width: 120px; height: 80px; top: 100px; left: 80px; }
+  .c2 { width: 90px; height: 120px; top: 80px; left: 220px; }
+  .c3 { width: 150px; height: 100px; top: 200px; left: 100px; }
+  .c4 { width: 80px; height: 60px; top: 150px; left: 380px; }
+
+  .map-pin {
+    position: absolute;
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .map-pin-dot {
+    width: 20px;
+    height: 20px;
+    background: #e74c3c;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(231,76,60,0.6);
+  }
+  .map-pin-pulse {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(231,76,60,0.4);
+    border-radius: 50%;
+  }
+  .map-zoom-label {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+  }
+  .map-city-label {
+    position: absolute;
+    top: 38%;
+    left: 58%;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.5);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  /* ============================================================
+     ÉCRAN 5 — CHARGEMENT (États de transition)
+  ============================================================ */
+  #screen-loading .tv-screen {
+    background: #0a0a1a;
+  }
+  .loading-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 0;
+  }
+  .loading-icon { font-size: 56px; margin-bottom: 24px; }
+  .loading-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .loading-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 40px;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  /* Progress bar animée */
+  .progress-container {
+    width: 440px;
+    margin-bottom: 16px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #3a7bd5, #6c5ce7);
+  }
+
+  .loading-steps {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 440px;
+  }
+  .loading-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.35);
+  }
+  .loading-step.done { color: rgba(255,255,255,0.7); }
+  .loading-step.active { color: rgba(255,255,255,0.9); }
+  .step-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  /* ============================================================
+     ÉCRAN 6 — FIN DE PARTIE (Récapitulatif)
+  ============================================================ */
+  #screen-summary .tv-screen {
+    background: linear-gradient(135deg, #050f1a, #0a1525, #060d18);
+  }
+  .summary-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    padding: 36px 60px;
+    gap: 40px;
+  }
+  .summary-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .summary-header {
+    margin-bottom: 24px;
+  }
+  .summary-emoji { font-size: 40px; }
+  .summary-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 8px;
+  }
+  .summary-score-big {
+    font-size: 64px;
+    font-weight: 800;
+    color: #3a7bd5;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-top: 4px;
+  }
+  .summary-score-label {
+    font-size: 15px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .summary-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .stat-value { font-size: 22px; font-weight: 700; color: #fff; }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+  .summary-cta {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .summary-right {
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+  }
+  .summary-map-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+  }
+  .summary-map {
+    flex: 1;
+    background: linear-gradient(135deg, #0f2a4a, #1a3a5a);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(58,123,213,0.2);
+  }
+  .sum-map-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image:
+      linear-gradient(rgba(58,123,213,0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,123,213,0.5) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .sum-map-dots {
+    position: absolute;
+    inset: 0;
+  }
+  .map-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #e74c3c;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 0 6px rgba(231,76,60,0.6);
+  }
+  .d1 { top: 40%; left: 52%; }
+  .d2 { top: 38%; left: 48%; }
+  .d3 { top: 45%; left: 30%; }
+  .d4 { top: 42%; left: 58%; }
+  .d5 { top: 50%; left: 22%; }
+
+  /* ============================================================
+     LÉGENDE UX
+  ============================================================ */
+  .ux-legend {
+    width: 960px;
+    margin-top: 24px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid #2a2a3e;
+  }
+  .legend-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .dot-blue { background: #3a7bd5; }
+  .dot-red { background: #e74c3c; }
+  .dot-green { background: #27ae60; }
+  .dot-yellow { background: #f39c12; }
+  .legend-text { font-size: 12px; color: #888; line-height: 1.5; }
+  .legend-text strong { color: #bbb; }
+</style>
+</head>
+<body>
+
+<h1>🗺️ Wanderback — Wireframes Apple TV</h1>
+<p class="subtitle">Conception 10-foot UI · Résolution de référence 1920×1080 (affiché ici à 960×540) · Safe zone 5%</p>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showScreen('splash')">① Accueil</button>
+  <button class="nav-btn" onclick="showScreen('mode')">② Choix de mode</button>
+  <button class="nav-btn" onclick="showScreen('game')">③ Jeu en cours</button>
+  <button class="nav-btn" onclick="showScreen('reveal')">④ Révélation</button>
+  <button class="nav-btn" onclick="showScreen('loading')">⑤ Chargement</button>
+  <button class="nav-btn" onclick="showScreen('summary')">⑥ Récapitulatif</button>
+</div>
+
+
+<!-- ===================== ÉCRAN 1 : ACCUEIL ===================== -->
+<div id="screen-splash" class="screen-wrapper visible">
+  <div class="screen-label">Écran 1 — Accueil (état : bibliothèque indexée)</div>
+  <div class="tv-screen">
+    <div class="safe-zone"><span class="safe-zone-label">Safe zone TV</span></div>
+    <div class="splash-photos-strip">
+      <div class="photo-placeholder"></div>
+      <div class="photo-placeholder"></div>
+      <div class="photo-placeholder"></div>
+      <div class="photo-placeholder"></div>
+      <div class="photo-placeholder"></div>
+    </div>
+    <div class="splash-bg">
+      <div class="splash-content">
+        <div class="app-icon">🗺️</div>
+        <div class="app-title">Wanderback</div>
+        <div class="app-tagline">Reconnais tes souvenirs de voyage</div>
+        <div class="splash-cta">
+          <div class="btn-primary">▶ Jouer</div>
+          <div class="btn-secondary">⚙ Réglages</div>
+        </div>
+      </div>
+    </div>
+    <div class="splash-bottom">
+      <div class="photo-count">📸 1 247 photos · 23 lieux · 8 pays</div>
+      <div class="remote-hint">Appuie sur ▶ ou clic pour commencer</div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation">
+      <strong>Fond dynamique</strong>
+      Mosaïque floue des photos de l'utilisateur en arrière-plan. Ambiance immersive sans révéler de lieux. Légère animation de parallaxe au focus.
+    </div>
+    <div class="annotation">
+      <strong>Compteur de bibliothèque</strong>
+      Rassure l'utilisateur : le jeu sait combien de lieux il peut proposer. Généré après l'indexation initiale.
+    </div>
+    <div class="annotation warn">
+      <strong>Taille de police minimale</strong>
+      Sur Apple TV, la taille minimale recommandée est 36pt pour le corps de texte (vu à 3m). Les titres font 60pt+. Tous les éléments focusables font au moins 44×44pt.
+    </div>
+    <div class="annotation">
+      <strong>Indicateur de focus (télécommande)</strong>
+      L'élément focalisé ("Jouer") est agrandi et entouré d'un halo lumineux — c'est le comportement par défaut du focus engine tvOS via SwiftUI.
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== ÉCRAN 2 : MODE ===================== -->
+<div id="screen-mode" class="screen-wrapper">
+  <div class="screen-label">Écran 2 — Sélection du mode de jeu</div>
+  <div class="tv-screen">
+    <div class="safe-zone"><span class="safe-zone-label">Safe zone TV</span></div>
+    <div class="mode-screen">
+      <div class="mode-title">Quel mode aujourd'hui ?</div>
+      <div class="mode-subtitle">Choisis l'ambiance qui te convient</div>
+      <div class="mode-cards">
+        <div class="mode-card souvenir focused">
+          <div class="mode-card-emoji">🌅</div>
+          <div class="mode-card-name">Souvenir</div>
+          <div class="mode-card-desc">Replonge dans tes voyages sans pression. Après chaque photo, découvre le lieu avec une carte animée et d'autres photos du même jour.</div>
+          <div class="mode-card-tags">
+            <div class="tag tag-green">Sans chrono</div>
+            <div class="tag tag-blue">Mode famille</div>
+            <div class="tag tag-purple">Nostalgie</div>
+          </div>
+        </div>
+        <div class="mode-card challenge">
+          <div class="mode-card-emoji">⏱️</div>
+          <div class="mode-card-name">Challenge</div>
+          <div class="mode-card-desc">30 secondes par photo, chaque seconde compte. Plus tu réponds vite et juste, plus tu marques de points. Qui connaît le mieux vos voyages ?</div>
+          <div class="mode-card-tags">
+            <div class="tag tag-orange">Chronométré</div>
+            <div class="tag tag-blue">Score</div>
+            <div class="tag tag-purple">Tour par tour</div>
+          </div>
+        </div>
+      </div>
+      <div class="mode-rounds">
+        <div class="mode-rounds-label">Nombre de rounds</div>
+        <div class="rounds-options">
+          <div class="round-opt">5</div>
+          <div class="round-opt selected">10</div>
+          <div class="round-opt">20</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation">
+      <strong>2 cartes max côte à côte</strong>
+      Sur TV, 2 colonnes est le maximum pour des blocs d'info comparables. 3 colonnes devient illisible à distance. Le focus scale effect se voit bien.
+    </div>
+    <div class="annotation">
+      <strong>Navigation au D-pad</strong>
+      Gauche/droite pour alterner entre les deux modes. Haut/bas pour aller vers la sélection des rounds. Pas de scroll si possible sur cet écran.
+    </div>
+    <div class="annotation warn">
+      <strong>Contraste minimum</strong>
+      Ratio de contraste WCAG AA minimum 4.5:1 pour le texte sur fond sombre. Les TV ont souvent un backlight variable — tester en conditions réelles.
+    </div>
+    <div class="annotation success">
+      <strong>Persistance du choix</strong>
+      Mémoriser le dernier mode et le dernier nombre de rounds choisis (UserDefaults). L'utilisateur ne doit pas re-configurer à chaque partie.
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== ÉCRAN 3 : JEU ===================== -->
+<div id="screen-game" class="screen-wrapper">
+  <div class="screen-label">Écran 3 — Jeu en cours (Mode Challenge, Round 3/10)</div>
+  <div class="tv-screen">
+    <div class="safe-zone"><span class="safe-zone-label">Safe zone TV</span></div>
+    <div class="game-screen">
+      <div class="game-photo-area">
+        <div class="game-photo-bg"></div>
+        <div class="photo-sky-sim"></div>
+        <div class="photo-city-sim"></div>
+        <div class="photo-building b1"></div>
+        <div class="photo-building b2"></div>
+        <div class="photo-building b3"></div>
+        <div class="photo-building b4"></div>
+        <div class="photo-building b5"></div>
+        <div class="photo-building b6"></div>
+        <div class="photo-building b7"></div>
+
+        <div class="game-hud">
+          <div class="hud-round">Round <span>3</span> / 10</div>
+          <div class="hud-timer">
+            <div class="timer-bar-bg"><div class="timer-bar-fill"></div></div>
+            <div class="timer-number">21s</div>
+          </div>
+          <div class="hud-score">🏆 <span class="hud-score-value">3 450</span> pts</div>
+        </div>
+      </div>
+
+      <div class="game-options-area">
+        <div class="question-label">📍 Où cette photo a-t-elle été prise ?</div>
+        <div class="options-grid">
+          <div class="option-btn focused">
+            <div class="option-flag">🇵🇹</div>
+            <div class="option-text">
+              <div class="option-city">Lisbonne</div>
+              <div class="option-country">Portugal</div>
+            </div>
+            <div class="option-letter">A</div>
+          </div>
+          <div class="option-btn">
+            <div class="option-flag">🇪🇸</div>
+            <div class="option-text">
+              <div class="option-city">Barcelone</div>
+              <div class="option-country">Espagne</div>
+            </div>
+            <div class="option-letter">B</div>
+          </div>
+          <div class="option-btn">
+            <div class="option-flag">🇮🇹</div>
+            <div class="option-text">
+              <div class="option-city">Rome</div>
+              <div class="option-country">Italie</div>
+            </div>
+            <div class="option-letter">C</div>
+          </div>
+          <div class="option-btn">
+            <div class="option-flag">🇫🇷</div>
+            <div class="option-text">
+              <div class="option-city">Marseille</div>
+              <div class="option-country">France</div>
+            </div>
+            <div class="option-letter">D</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation">
+      <strong>Photo plein écran (bleeding)</strong>
+      La photo déborde jusqu'aux bords (edge-to-edge) pour un effet immersif. Les options sont superposées avec un dégradé sombre en bas — garantit la lisibilité sans rogner la photo.
+    </div>
+    <div class="annotation">
+      <strong>4 options en 2×2</strong>
+      La grille 2×2 est facilement navigable au D-pad. Focus Haut/Bas entre lignes, Gauche/Droite entre colonnes. Chaque option fait au minimum 80px de hauteur pour être visible à 3m.
+    </div>
+    <div class="annotation warn">
+      <strong>Exif : masquer les indices</strong>
+      Vérifier que les métadonnées de localisation ne soient pas visibles dans l'UI (ex: libellé de l'album iCloud "Lisbonne 2022"). La photo doit être "neutre" visuellement.
+    </div>
+    <div class="annotation">
+      <strong>Chrono visuel (Mode Challenge)</strong>
+      La barre de progression passe du vert à l'orange-rouge. En Mode Souvenir, cet HUD est absent — l'interface est plus épurée, centrée sur la photo.
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== ÉCRAN 4 : RÉVÉLATION ===================== -->
+<div id="screen-reveal" class="screen-wrapper">
+  <div class="screen-label">Écran 4 — Révélation du lieu (Mode Souvenir, bonne réponse)</div>
+  <div class="tv-screen">
+    <div class="safe-zone"><span class="safe-zone-label">Safe zone TV</span></div>
+    <div class="reveal-screen">
+      <div class="reveal-left">
+        <div class="reveal-status">
+          <div class="status-badge status-correct">✓ Bonne réponse !</div>
+          <div class="score-gained">+980 pts</div>
+        </div>
+
+        <div class="reveal-city-name">Lisbonne</div>
+        <div class="reveal-country">🇵🇹 Portugal — Europe</div>
+
+        <div class="reveal-meta">
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            Photo prise le <span class="meta-value">&nbsp;14 juillet 2022</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📏</span>
+            <span class="meta-value">1 847 km</span>&nbsp; depuis chez toi
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">🌡️</span>
+            Pendant ton voyage de <span class="meta-value">&nbsp;8 jours</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📸</span>
+            <span class="meta-value">137 photos</span>&nbsp; prises ce voyage-là
+          </div>
+        </div>
+
+        <div class="reveal-other-photos">
+          <div class="reveal-photos-label">Autres photos de ce jour</div>
+          <div class="reveal-photos-strip">
+            <div class="reveal-photo-thumb thumb-1"></div>
+            <div class="reveal-photo-thumb thumb-2"></div>
+            <div class="reveal-photo-thumb thumb-3"></div>
+            <div class="reveal-photo-thumb thumb-4"></div>
+            <div class="reveal-photo-thumb thumb-5"></div>
+          </div>
+        </div>
+
+        <div class="reveal-cta">
+          <div class="btn-reveal-next">Photo suivante →</div>
+          <div class="btn-reveal-skip">Voir le voyage</div>
+        </div>
+      </div>
+
+      <div class="reveal-right">
+        <div class="map-placeholder">
+          <div class="map-grid"></div>
+          <div class="map-continent c1"></div>
+          <div class="map-continent c2"></div>
+          <div class="map-continent c3"></div>
+          <div class="map-continent c4"></div>
+          <div class="map-pin">
+            <div class="map-pin-pulse"></div>
+            <div class="map-pin-dot"></div>
+          </div>
+          <div class="map-city-label">Lisbonne</div>
+          <div class="map-zoom-label">MapKit · Animation zoom</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation success">
+      <strong>Layout 50/50 — Info + Carte</strong>
+      Gauche : informations émotionnelles (lieu, date, distance, photos du voyage). Droite : carte MapKit avec animation de zoom depuis vue monde jusqu'au lieu exact.
+    </div>
+    <div class="annotation">
+      <strong>Strip de photos du même jour</strong>
+      Affichées en bas à gauche, navigables (focus horizontal). En Mode Souvenir, appuyer sur une vignette peut lancer un diaporama plein écran de ce voyage.
+    </div>
+    <div class="annotation warn">
+      <strong>Animation carte — MapKit tvOS</strong>
+      MapKit est disponible sur tvOS mais les interactions tactiles sont absentes. L'animation de zoom est entièrement programmatique (MKMapCamera, animateCamera). Prévoir un fallback si hors ligne.
+    </div>
+    <div class="annotation">
+      <strong>Bouton "Voir le voyage"</strong>
+      Option bonus : afficher toutes les photos de ce voyage dans un diaporama. Crée de la valeur émotionnelle additionnelle sans bloquer le jeu.
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== ÉCRAN 5 : CHARGEMENT ===================== -->
+<div id="screen-loading" class="screen-wrapper">
+  <div class="screen-label">Écran 5 — États de chargement (indexation initiale)</div>
+  <div class="tv-screen">
+    <div class="safe-zone"><span class="safe-zone-label">Safe zone TV</span></div>
+    <div class="loading-screen">
+      <div class="loading-icon">📸</div>
+      <div class="loading-title">Préparation de tes souvenirs…</div>
+      <div class="loading-subtitle">Wanderback analyse ta bibliothèque pour trouver tous tes lieux de voyage. Ça ne prend qu'une minute la première fois.</div>
+
+      <div class="progress-container">
+        <div class="progress-label">
+          <span>Analyse en cours</span>
+          <span>847 / 1 247</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 68%"></div>
+        </div>
+      </div>
+
+      <div class="loading-steps">
+        <div class="loading-step done">
+          <span class="step-icon">✅</span>
+          Accès à la bibliothèque autorisé
+        </div>
+        <div class="loading-step done">
+          <span class="step-icon">✅</span>
+          1 247 photos trouvées
+        </div>
+        <div class="loading-step active">
+          <span class="step-icon">⏳</span>
+          Lecture des coordonnées GPS — 847 / 1 247
+        </div>
+        <div class="loading-step">
+          <span class="step-icon">○</span>
+          Regroupement par lieux (clustering)
+        </div>
+        <div class="loading-step">
+          <span class="step-icon">○</span>
+          Identification des villes (géocodage)
+        </div>
+        <div class="loading-step">
+          <span class="step-icon">○</span>
+          Mise en cache locale
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation warn">
+      <strong>Indexation : une seule fois</strong>
+      Ce chargement n'apparaît qu'au premier lancement et après une mise à jour majeure. Les fois suivantes, le cache est chargé en &lt;1s. Afficher une animation légère (spinner) uniquement.
+    </div>
+    <div class="annotation">
+      <strong>Barre de progression déterminée</strong>
+      On connaît le nombre total de photos dès le début (PhotoKit), donc on peut afficher une progression réelle plutôt qu'un spinner indéfini. Bien meilleur pour l'UX TV.
+    </div>
+    <div class="annotation">
+      <strong>Géocodage asynchrone / throttlé</strong>
+      CLGeocoder est limité à ~50 req/min. L'indexation doit être une opération background avec queue prioritaire. Les photos sans GPS sont ignorées silencieusement.
+    </div>
+    <div class="annotation success">
+      <strong>Autres états à prévoir</strong>
+      (1) Chargement photo iCloud mid-game : skeleton screen sur la photo avec shimmer. (2) Timeout réseau : fallback sur photo déjà en cache. (3) Bibliothèque vide de GPS : écran d'aide explicatif.
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== ÉCRAN 6 : RÉCAPITULATIF ===================== -->
+<div id="screen-summary" class="screen-wrapper">
+  <div class="screen-label">Écran 6 — Récapitulatif de fin de partie (Mode Challenge)</div>
+  <div class="tv-screen">
+    <div class="safe-zone"><span class="safe-zone-label">Safe zone TV</span></div>
+    <div class="summary-screen">
+      <div class="summary-left">
+        <div class="summary-header">
+          <div class="summary-emoji">🏆</div>
+          <div class="summary-title">Partie terminée !</div>
+          <div class="summary-score-big">7 840</div>
+          <div class="summary-score-label">points · 10 rounds</div>
+        </div>
+
+        <div class="summary-stats">
+          <div class="stat-card">
+            <div class="stat-value">7 / 10</div>
+            <div class="stat-label">Bonnes réponses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">14,2s</div>
+            <div class="stat-label">Temps moyen / photo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">6 pays</div>
+            <div class="stat-label">Pays traversés</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">12 840 km</div>
+            <div class="stat-label">Distance totale</div>
+          </div>
+        </div>
+
+        <div class="summary-cta" style="margin-top: 20px;">
+          <div class="btn-primary" style="font-size: 16px; padding: 12px 24px;">▶ Rejouer</div>
+          <div class="btn-secondary" style="font-size: 16px; padding: 12px 20px;">🔄 Changer de mode</div>
+          <div class="btn-secondary" style="font-size: 16px; padding: 12px 20px;">⌂ Menu</div>
+        </div>
+      </div>
+
+      <div class="summary-right">
+        <div class="summary-map-label">Lieux de cette partie</div>
+        <div class="summary-map">
+          <div class="sum-map-grid"></div>
+          <div class="sum-map-dots">
+            <div class="map-dot d1"></div>
+            <div class="map-dot d2"></div>
+            <div class="map-dot d3"></div>
+            <div class="map-dot d4"></div>
+            <div class="map-dot d5"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation success">
+      <strong>Carte récapitulative avec dots</strong>
+      Tous les lieux de la partie apparaissent sur la carte mondiale avec un point rouge. Animation d'apparition séquentielle (un dot à la fois) pour l'effet "tour du monde".
+    </div>
+    <div class="annotation">
+      <strong>Stats émotionnelles</strong>
+      "12 840 km parcourus" est plus fort émotionnellement que "7/10". Mélanger les deux types de stats crée de l'engagement et de la fierté même sans score parfait.
+    </div>
+    <div class="annotation">
+      <strong>Bouton Rejouer en focus par défaut</strong>
+      Quand l'écran apparaît, le bouton "Rejouer" doit avoir le focus initial. L'utilisateur peut lancer une nouvelle partie immédiatement sans naviguer.
+    </div>
+    <div class="annotation warn">
+      <strong>Pas de partage social</strong>
+      tvOS ne supporte pas UIActivityViewController. Le partage de score vers iPhone peut se faire via Handoff/SharePlay, mais c'est une fonctionnalité V3.
+    </div>
+  </div>
+</div>
+
+
+<!-- Légende UX globale -->
+<div class="ux-legend">
+  <div class="legend-title">Principes UX 10-foot (Apple TV)</div>
+  <div class="legend-grid">
+    <div class="legend-item">
+      <div class="legend-dot dot-blue"></div>
+      <div class="legend-text"><strong>Taille minimale 36pt</strong> pour tout texte lisible, 28pt pour les légendes secondaires. Pas de texte &lt;24pt.</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot dot-red"></div>
+      <div class="legend-text"><strong>Safe zone 5%</strong> de chaque bord — aucun contenu cliquable en dehors (overscan TV). Indiquée par la bordure rouge pointillée.</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot dot-green"></div>
+      <div class="legend-text"><strong>Focus engine natif</strong> SwiftUI gère automatiquement l'animation de focus (scale + halo). Ne pas surcharger avec des animations custom.</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot dot-yellow"></div>
+      <div class="legend-text"><strong>Max 2 colonnes</strong> pour du contenu comparatif. Les listes verticales simples fonctionnent mieux sur TV que des grilles complexes.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(name) {
+  document.querySelectorAll('.screen-wrapper').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('visible');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
