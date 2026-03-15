@@ -1,11 +1,5 @@
-//
-//  WanderbackApp.swift
-//  Wanderback
-//
-//  Created by Bastien Micha on 14/03/2026.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct WanderbackApp: App {
@@ -13,5 +7,6 @@ struct WanderbackApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: LocationCache.self)
     }
 }
