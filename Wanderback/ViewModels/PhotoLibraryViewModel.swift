@@ -67,6 +67,15 @@ class PhotoLibraryViewModel {
 
     var clusterCount: Int { clusters.count }
 
+    /// Clusters dont le nom de lieu est connu — les seuls utilisables pour une partie.
+    var geocodedClusters: [LocationCluster] {
+        clusters.filter { !$0.displayName.isEmpty }
+    }
+
+    /// Progression du geocoding qui continue derrière l'écran d'accueil.
+    /// Nil quand tout est identifié (ou pas encore commencé).
+    private(set) var backgroundGeocodingProgress: (done: Int, total: Int)?
+
     /// Bascule en mode démo avec des destinations fictives (écran « Pas assez de destinations »).
     func startDemoMode() {
         clusters = DemoData.clusters
@@ -160,11 +169,14 @@ class PhotoLibraryViewModel {
             return
         }
 
-        // Step 4: Geocoding — trier par taille (plus gros clusters d'abord)
+        // Step 4: Geocoding — trier par taille (plus gros clusters d'abord).
+        // Dès que `minimumGeocodedForPlay` lieux sont identifiés on passe en `.ready`
+        // (l'accueil s'affiche) et le reste continue en arrière-plan : la progression
+        // va alors dans `backgroundGeocodingProgress`, plus jamais dans `currentStep`.
         let sortedIndices = clusters.indices.sorted { clusters[$0].photoCount > clusters[$1].photoCount }
-        let minimumGeocodedForPlay = 20
+        let minimumGeocodedForPlay = 10
         let totalToGeocode = clusters.count
-        var geocodedCount = 0
+        var attemptedCount = 0
 
         currentStep = .geocoding(current: 0, total: totalToGeocode)
         logger.info("Step: geocoding \(totalToGeocode) clusters (play after \(minimumGeocodedForPlay))")
@@ -175,25 +187,34 @@ class PhotoLibraryViewModel {
                 clusters[i].displayName = cache.displayName
                 clusters[i].country = cache.country
             }
-            geocodedCount += 1
-            currentStep = .geocoding(current: geocodedCount, total: totalToGeocode)
+            attemptedCount += 1
 
-            // Dès qu'on a assez de clusters géocodés, passer en mode prêt
-            if geocodedCount == minimumGeocodedForPlay {
-                currentStep = .ready
-                logger.info("Step: ready — \(geocodedCount)/\(totalToGeocode) geocoded, \(self.countryCount) countries")
+            if isReady {
+                backgroundGeocodingProgress = (done: attemptedCount, total: totalToGeocode)
+            } else {
+                currentStep = .geocoding(current: attemptedCount, total: totalToGeocode)
+                // Assez de lieux identifiés (les échecs ne comptent pas) : on peut jouer
+                if geocodedClusters.count >= minimumGeocodedForPlay {
+                    currentStep = .ready
+                    backgroundGeocodingProgress = (done: attemptedCount, total: totalToGeocode)
+                    logger.info("Step: ready — \(attemptedCount)/\(totalToGeocode) geocoded, \(self.countryCount) countries")
+                }
             }
         }
 
-        // Fin du geocoding complet en arrière-plan
-        if geocodedCount > minimumGeocodedForPlay {
-            logger.info("Background geocoding complete: \(geocodedCount)/\(totalToGeocode)")
-        }
+        backgroundGeocodingProgress = nil
+        logger.info("Geocoding complete: \(self.geocodedClusters.count)/\(totalToGeocode) identified")
 
-        // Si moins de 20 clusters au total, on est prêt maintenant
+        // Moins de `minimumGeocodedForPlay` clusters au total : on est prêt maintenant
         if !isReady {
+            // Trop d'échecs de geocoding pour générer des questions (4 options minimum)
+            if geocodedClusters.count < ClusteringService.minimumClusters {
+                notEnoughPhotos = true
+                logger.warning("Not enough geocoded clusters: \(self.geocodedClusters.count)")
+                return
+            }
             currentStep = .ready
-            logger.info("Step: ready — \(geocodedCount) clusters geocoded, \(self.countryCount) countries")
+            logger.info("Step: ready — \(self.geocodedClusters.count) clusters geocoded, \(self.countryCount) countries")
         }
     }
 }

@@ -29,10 +29,11 @@ struct ContentView: View {
             gameFlow
         } else if photoViewModel.isReady {
             HomeView(viewModel: photoViewModel) { mode, roundCount in
+                // Seuls les lieux déjà identifiés peuvent servir de question ou d'option
                 gameViewModel.startGame(
                     mode: mode,
                     roundCount: roundCount,
-                    clusters: photoViewModel.clusters
+                    clusters: photoViewModel.geocodedClusters
                 )
             }
         } else {
@@ -74,7 +75,7 @@ struct ContentView: View {
               photoViewModel.isReady else { return }
 
         let target = arguments[flagIndex + 1]
-        gameViewModel.startGame(mode: .challenge, roundCount: 3, clusters: photoViewModel.clusters)
+        gameViewModel.startGame(mode: .challenge, roundCount: 3, clusters: photoViewModel.geocodedClusters)
 
         switch target {
         case "reveal":

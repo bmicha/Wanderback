@@ -164,13 +164,27 @@ struct HomeView: View {
     // MARK: - Stats
 
     private var statsRow: some View {
-        HStack(spacing: 52) {
-            Text("\(viewModel.photoLocations.count) photos GPS")
-            Text("\(viewModel.clusterCount) lieux")
-            Text("\(viewModel.countryCount) pays")
+        VStack(spacing: 10) {
+            HStack(spacing: 52) {
+                Text("\(viewModel.photoLocations.count) photos GPS")
+                Text("\(viewModel.geocodedClusters.count) lieux")
+                Text("\(viewModel.countryCount) pays")
+            }
+            .font(.system(size: 22))
+            .foregroundStyle(Theme.textTertiary)
+
+            // Le geocoding continue derrière l'accueil : le compteur de lieux grossit tout seul
+            if let progress = viewModel.backgroundGeocodingProgress {
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(Theme.textTertiary)
+                    Text("Identification des lieux en cours… \(progress.done)/\(progress.total)")
+                }
+                .font(.system(size: 19))
+                .foregroundStyle(Theme.textTertiary)
+            }
         }
-        .font(.system(size: 22))
-        .foregroundStyle(Theme.textTertiary)
     }
 
     // MARK: - CTA
