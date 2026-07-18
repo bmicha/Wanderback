@@ -23,8 +23,9 @@ enum Theme {
     static let textSecondary = Color.white.opacity(0.7)
     static let textTertiary = Color.white.opacity(0.45)
 
-    /// Surface des cartes réponse
-    static let answerSurface = Color(red: 22 / 255, green: 20 / 255, blue: 42 / 255).opacity(0.78)
+    /// Surface des cartes réponse — volontairement très translucide pour laisser
+    /// transparaître la photo du round (le blur du matériau assure la lisibilité)
+    static let answerSurface = Color(red: 22 / 255, green: 20 / 255, blue: 42 / 255).opacity(0.4)
     static let answerBorder = Color.white.opacity(0.14)
 
     // MARK: - Dégradés

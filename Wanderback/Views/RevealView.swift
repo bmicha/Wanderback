@@ -98,11 +98,18 @@ struct RevealView: View {
     private func startCinematicZoom() {
         guard let coordinate = round?.correctAnswer.centerCoordinate else { return }
 
+        // Centre de caméra décalé au sud du lieu : le pin s'affiche dans le tiers
+        // haut de l'écran, bien séparé du cartouche titre/date
+        let offsetCenter = CLLocationCoordinate2D(
+            latitude: coordinate.latitude - 0.3,
+            longitude: coordinate.longitude
+        )
+
         // Zoom ~2–3 s en Souvenir, abrégé en Challenge
         let duration: TimeInterval = gameViewModel.mode == .challenge ? 1.6 : 2.6
         withAnimation(.easeInOut(duration: duration)) {
             cameraPosition = .camera(
-                MapCamera(centerCoordinate: coordinate, distance: 250_000, pitch: 0)
+                MapCamera(centerCoordinate: offsetCenter, distance: 250_000, pitch: 0)
             )
         }
         withAnimation(.easeOut(duration: 0.5).delay(duration * 0.4)) {
@@ -134,10 +141,8 @@ struct RevealView: View {
                 .font(.system(size: 104, weight: .heavy))
                 .tracking(4)
                 .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.6), radius: 30, y: 10)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
-                .padding(.horizontal, 100)
 
             Text(round?.correctAnswer.country ?? "")
                 .font(.system(size: 32))
@@ -154,7 +159,21 @@ struct RevealView: View {
                     .padding(.top, 8)
             }
         }
-        .padding(.top, 260) // dégage le pin, qui reste au centre exact de la carte
+        .padding(.horizontal, 70)
+        .padding(.vertical, 40)
+        .background {
+            // Cartouche translucide : garde titre, lieu et date lisibles sur la carte
+            RoundedRectangle(cornerRadius: 28)
+                .fill(Color(red: 10 / 255, green: 9 / 255, blue: 20 / 255).opacity(0.55))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28))
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 2)
+        )
+        .shadow(color: Theme.tileShadow, radius: 30, y: 20)
+        .padding(.top, 280) // sous le pin, remonté dans le tiers haut de la carte
+        .padding(.horizontal, 100)
         .opacity(contentRevealed ? 1 : 0)
         .offset(y: contentRevealed ? 0 : 30)
     }
