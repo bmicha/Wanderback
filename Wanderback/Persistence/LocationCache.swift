@@ -26,8 +26,11 @@ class LocationCache {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
+    /// Ville seule — le pays est affiché séparément dans toute l'UI
+    /// (concaténer ville, région et pays donnait « Rouen, Normandie, France »
+    /// sur les cartes réponse, avec le pays répété en dessous)
     var displayName: String {
-        [city, region, country].compactMap { $0 }.joined(separator: ", ")
+        city ?? region ?? country
     }
 
     func distance(to coordinate: CLLocationCoordinate2D) -> CLLocationDistance {
