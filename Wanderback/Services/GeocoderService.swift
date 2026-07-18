@@ -1,17 +1,17 @@
 import Foundation
 import CoreLocation
+import MapKit
 import SwiftData
 import os
 
 @MainActor
 class GeocoderService {
-    private let geocoder = CLGeocoder()
     private let logger = Logger(subsystem: "com.bastien.Wanderback", category: "GeocoderService")
 
     /// Seuil de proximité pour réutiliser un cache existant (500m)
     static let proximityCacheThreshold: CLLocationDistance = 500
 
-    /// Délai entre requêtes API (50 req/60s max imposé par Apple)
+    /// Délai entre requêtes API (throttling MapKit)
     private static let throttleDelay: Duration = .milliseconds(1250)
 
     /// Délai de backoff après une erreur rate-limit
@@ -40,19 +40,26 @@ class GeocoderService {
         for attempt in 0...Self.maxRetries {
             await throttle()
 
+            // Une requête MKReverseGeocodingRequest est à usage unique : en créer une par tentative
+            guard let request = MKReverseGeocodingRequest(location: location) else {
+                logger.warning("Invalid location for \(coordinate.latitude), \(coordinate.longitude)")
+                return nil
+            }
+
             do {
-                guard let placemark = try await geocoder.reverseGeocodeLocation(location).first else {
-                    logger.warning("No placemark for \(coordinate.latitude), \(coordinate.longitude)")
+                guard let mapItem = try await request.mapItems.first,
+                      let address = mapItem.addressRepresentations else {
+                    logger.warning("No address for \(coordinate.latitude), \(coordinate.longitude)")
                     return nil
                 }
 
                 let cache = LocationCache(
                     latitude: coordinate.latitude,
                     longitude: coordinate.longitude,
-                    city: placemark.locality,
-                    country: placemark.country ?? "Unknown",
-                    countryCode: placemark.isoCountryCode ?? "??",
-                    region: placemark.administrativeArea
+                    city: address.cityName,
+                    country: address.regionName ?? "Unknown",
+                    countryCode: address.region?.identifier ?? "??",
+                    region: administrativeArea(from: address)
                 )
 
                 modelContext.insert(cache)
@@ -70,6 +77,16 @@ class GeocoderService {
         }
 
         return nil
+    }
+
+    /// Extrait la région administrative (« CA », « Île-de-France »…) de `cityWithContext`
+    /// (« Cupertino, CA ») — MKAddressRepresentations ne l'expose pas directement.
+    private func administrativeArea(from address: MKAddressRepresentations) -> String? {
+        guard let city = address.cityName,
+              let cityWithContext = address.cityWithContext,
+              cityWithContext.hasPrefix("\(city), ") else { return nil }
+        let area = String(cityWithContext.dropFirst(city.count + 2))
+        return area.isEmpty ? nil : area
     }
 
     private func findCachedLocation(
