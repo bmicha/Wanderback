@@ -155,6 +155,8 @@ struct GameView: View {
 
     private func loadRoundPhoto() async {
         guard let round = gameViewModel.currentRound else { return }
+        // Préchauffe MapKit et les tuiles du lieu pendant que le joueur réfléchit
+        MapPrefetcher.shared.prefetch(for: round.correctAnswer)
         roundImage = nil
         let image = await PhotoImageLoader.shared.loadImage(
             assetIdentifier: round.photo.assetIdentifier,

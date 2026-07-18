@@ -183,7 +183,10 @@ class PhotoLibraryViewModel {
 
         for i in sortedIndices {
             let coord = clusters[i].centerCoordinate
-            if let cache = await geocoderService.reverseGeocode(coordinate: coord, modelContext: modelContext) {
+            // Un lieu sans nom exploitable (« Unknown ») reste displayName vide :
+            // il est exclu de geocodedClusters, donc jamais joué
+            if let cache = await geocoderService.reverseGeocode(coordinate: coord, modelContext: modelContext),
+               cache.hasUsableName {
                 clusters[i].displayName = cache.displayName
                 clusters[i].country = cache.country
             }
