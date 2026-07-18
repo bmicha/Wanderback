@@ -15,8 +15,8 @@ enum GameMode: String, CaseIterable, Identifiable {
 
     var subtitle: String {
         switch self {
-        case .souvenir: return "Ambiance détendue, sans chrono"
-        case .challenge: return "Chronomètre 30s, score dynamique"
+        case .souvenir: return "Tranquille, on se remémore ensemble"
+        case .challenge: return "30 s, 1000 pts, qui gagne ?"
         }
     }
 
