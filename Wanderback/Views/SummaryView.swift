@@ -50,6 +50,7 @@ struct SummaryView: View {
                     }
                     .buttonStyle(SecondaryPillButtonStyle())
                 }
+                .focusSection()
             }
             .padding(.bottom, 70)
         }
@@ -68,6 +69,9 @@ struct SummaryView: View {
             }
         }
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
+        // Sans ça, la carte plein écran capte le focus tvOS et empêche
+        // de naviguer de « Rejouer » vers « Changer de mode »
+        .disabled(true)
     }
 
     /// Pin ambre/rose alterné avec halo à 25 %.

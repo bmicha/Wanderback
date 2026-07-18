@@ -65,6 +65,8 @@ struct RevealView: View {
             }
         }
         .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .excludingAll))
+        // Empêche la carte plein écran de capter le focus tvOS (cf. SummaryView)
+        .disabled(true)
     }
 
     /// Pin 28pt : cercle erreur + halo à 30 %.
