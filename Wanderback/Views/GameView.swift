@@ -30,12 +30,27 @@ struct GameView: View {
     @ViewBuilder
     private var photoBackground: some View {
         if let roundImage, loadedRoundId == gameViewModel.currentRound?.id {
+            // Photo entière (aspect fit) sur fond constitué de la même image
+            // zoomée et floutée — indispensable pour les photos portrait
             GeometryReader { geometry in
-                Image(uiImage: roundImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .clipped()
+                ZStack {
+                    Image(uiImage: roundImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                        .scaleEffect(1.2)
+                        .blur(radius: 45)
+                        .overlay(Color.black.opacity(0.3))
+
+                    Image(uiImage: roundImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .shadow(color: .black.opacity(0.5), radius: 40)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
             }
             .transition(.opacity)
         } else {
