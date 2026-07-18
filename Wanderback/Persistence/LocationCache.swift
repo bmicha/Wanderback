@@ -33,6 +33,13 @@ class LocationCache {
         city ?? region ?? country
     }
 
+    /// Vrai si le geocoding a produit un nom exploitable pour le jeu :
+    /// une ville ou une région, et un pays identifié. Les lieux « Unknown »
+    /// ne doivent servir ni de question ni d'option de réponse.
+    var hasUsableName: Bool {
+        (city != nil || region != nil) && country != "Unknown"
+    }
+
     func distance(to coordinate: CLLocationCoordinate2D) -> CLLocationDistance {
         let cached = CLLocation(latitude: latitude, longitude: longitude)
         let target = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)

@@ -26,6 +26,8 @@ struct RevealView: View {
 
     var body: some View {
         ZStack {
+            // Sous la carte : évite un écran vide pendant l'initialisation MapKit
+            SceneBackground()
             map
             vignette
 

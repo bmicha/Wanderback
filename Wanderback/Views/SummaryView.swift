@@ -12,6 +12,8 @@ struct SummaryView: View {
 
     var body: some View {
         ZStack {
+            // Sous la carte : évite un écran vide pendant l'initialisation MapKit
+            SceneBackground()
             worldMap
             mapVeil
 
