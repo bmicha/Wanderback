@@ -257,10 +257,11 @@
 				CODE_SIGN_ENTITLEMENTS = Wanderback/Wanderback.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.family-games";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Wanderback utilise vos photos pour créer un jeu de devinettes basé sur les lieux où elles ont été prises.";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -291,10 +292,11 @@
 				CODE_SIGN_ENTITLEMENTS = Wanderback/Wanderback.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.family-games";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Wanderback utilise vos photos pour créer un jeu de devinettes basé sur les lieux où elles ont été prises.";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
