@@ -3,7 +3,7 @@ import SwiftUI
 struct GameView: View {
     let gameViewModel: GameViewModel
 
-    @State private var roundImage: UIImage?
+    @State private var roundImage: PlatformImage?
     @State private var loadedRoundId: UUID?
 
     private let scrimColor = Color(red: 10 / 255, green: 9 / 255, blue: 20 / 255)
@@ -34,7 +34,7 @@ struct GameView: View {
             // zoomée et floutée — indispensable pour les photos portrait
             GeometryReader { geometry in
                 ZStack {
-                    Image(uiImage: roundImage)
+                    Image(platformImage: roundImage)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: geometry.size.width, height: geometry.size.height)
@@ -43,7 +43,7 @@ struct GameView: View {
                         .blur(radius: 45)
                         .overlay(Color.black.opacity(0.3))
 
-                    Image(uiImage: roundImage)
+                    Image(platformImage: roundImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width, height: geometry.size.height)

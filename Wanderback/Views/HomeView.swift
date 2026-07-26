@@ -6,7 +6,7 @@ struct HomeView: View {
 
     @State private var selectedMode: GameMode = .souvenir
     @State private var selectedRounds: Int = 10
-    @State private var mosaicImages: [UIImage] = []
+    @State private var mosaicImages: [PlatformImage] = []
     @FocusState private var focusedElement: HomeElement?
 
     private let roundOptions = [5, 10, 20]
@@ -80,7 +80,7 @@ struct HomeView: View {
     @ViewBuilder
     private func mosaicCell(index: Int) -> some View {
         if index < mosaicImages.count {
-            Image(uiImage: mosaicImages[index])
+            Image(platformImage: mosaicImages[index])
                 .resizable()
                 .aspectRatio(contentMode: .fill)
         } else {

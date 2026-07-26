@@ -1,6 +1,5 @@
 import Foundation
 import Photos
-import UIKit
 
 /// Charge les images PhotoKit (photo de round plein écran, mosaïque d'accueil, vignettes).
 @MainActor
@@ -13,7 +12,7 @@ final class PhotoImageLoader {
 
     /// Charge l'image d'un asset par son identifiant local. Retourne nil si introuvable
     /// (cas du mode démo, où les rounds n'ont pas de vraie photo).
-    func loadImage(assetIdentifier: String, targetSize: CGSize) async -> UIImage? {
+    func loadImage(assetIdentifier: String, targetSize: CGSize) async -> PlatformImage? {
         guard !assetIdentifier.isEmpty else { return nil }
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
         guard let asset = fetchResult.firstObject else { return nil }
@@ -21,9 +20,9 @@ final class PhotoImageLoader {
     }
 
     /// Sélectionne `count` photos au hasard dans la bibliothèque pour la mosaïque d'accueil.
-    func loadRandomImages(from locations: [PhotoLocation], count: Int, targetSize: CGSize) async -> [UIImage] {
+    func loadRandomImages(from locations: [PhotoLocation], count: Int, targetSize: CGSize) async -> [PlatformImage] {
         let picked = locations.shuffled().prefix(count)
-        var images: [UIImage] = []
+        var images: [PlatformImage] = []
         for location in picked {
             if let image = await loadImage(assetIdentifier: location.assetIdentifier, targetSize: targetSize) {
                 images.append(image)
@@ -32,7 +31,7 @@ final class PhotoImageLoader {
         return images
     }
 
-    private func requestImage(for asset: PHAsset, targetSize: CGSize) async -> UIImage? {
+    private func requestImage(for asset: PHAsset, targetSize: CGSize) async -> PlatformImage? {
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat
         options.isNetworkAccessAllowed = true

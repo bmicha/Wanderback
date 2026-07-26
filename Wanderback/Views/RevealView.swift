@@ -6,7 +6,7 @@ struct RevealView: View {
 
     @State private var cameraPosition: MapCameraPosition
     @State private var contentRevealed = false
-    @State private var sameDayImages: [UIImage] = []
+    @State private var sameDayImages: [PlatformImage] = []
     @FocusState private var nextButtonFocused: Bool
 
     init(gameViewModel: GameViewModel) {
@@ -202,7 +202,7 @@ struct RevealView: View {
         if !sameDayImages.isEmpty {
             HStack(alignment: .bottom, spacing: 14) {
                 ForEach(Array(sameDayImages.enumerated()), id: \.offset) { _, image in
-                    Image(uiImage: image)
+                    Image(platformImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 148, height: 100)
@@ -229,7 +229,7 @@ struct RevealView: View {
             .filter { calendar.isDate($0.dateTaken, inSameDayAs: round.photo.dateTaken) }
             .prefix(3)
 
-        var images: [UIImage] = []
+        var images: [PlatformImage] = []
         for photo in sameDay {
             if let image = await PhotoImageLoader.shared.loadImage(
                 assetIdentifier: photo.assetIdentifier,
