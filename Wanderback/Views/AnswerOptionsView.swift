@@ -42,13 +42,16 @@ private struct AnswerCardButtonStyle: ButtonStyle {
 
     private struct AnswerCardLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
+
+        private var isHighlighted: Bool { isFocused || isHovered }
 
         var body: some View {
             configuration.label
-                .foregroundStyle(isFocused ? Theme.inkDark : .white)
+                .foregroundStyle(isHighlighted ? Theme.inkDark : .white)
                 .background {
-                    if isFocused {
+                    if isHighlighted {
                         RoundedRectangle(cornerRadius: 20.scaled).fill(Color.white)
                     } else {
                         RoundedRectangle(cornerRadius: 20.scaled)
@@ -58,11 +61,14 @@ private struct AnswerCardButtonStyle: ButtonStyle {
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 20.scaled)
-                        .strokeBorder(isFocused ? Color.clear : Theme.answerBorder, lineWidth: 3)
+                        .strokeBorder(isHighlighted ? Color.clear : Theme.answerBorder, lineWidth: 3)
                 )
-                .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
-                .scaleEffect(isFocused ? 1.07 : 1.0)
-                .animation(Theme.focusAnimation, value: isFocused)
+                .shadow(color: isHighlighted ? Theme.focusShadow : .clear, radius: 25, y: 20)
+                .scaleEffect(isHighlighted ? 1.07 : 1.0)
+                .animation(Theme.focusAnimation, value: isHighlighted)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }

@@ -124,10 +124,13 @@ struct GradientPillButtonStyle: ButtonStyle {
 
     private struct GradientPillLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let horizontalPadding: CGFloat
         let verticalPadding: CGFloat
         let fontSize: CGFloat
+
+        private var isHighlighted: Bool { isFocused || isHovered }
 
         var body: some View {
             configuration.label
@@ -137,11 +140,14 @@ struct GradientPillButtonStyle: ButtonStyle {
                 .padding(.vertical, verticalPadding.scaled)
                 .background(Theme.signatureGradient, in: Capsule())
                 .shadow(
-                    color: isFocused ? Theme.ctaHalo : Theme.ctaHalo.opacity(0.5),
+                    color: isHighlighted ? Theme.ctaHalo : Theme.ctaHalo.opacity(0.5),
                     radius: 25, y: 20
                 )
-                .scaleEffect(isFocused ? 1.08 : 1.0)
-                .animation(Theme.focusAnimation, value: isFocused)
+                .scaleEffect(isHighlighted ? 1.08 : 1.0)
+                .animation(Theme.focusAnimation, value: isHighlighted)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
@@ -163,27 +169,33 @@ struct SecondaryPillButtonStyle: ButtonStyle {
 
     private struct SecondaryPillLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let horizontalPadding: CGFloat
         let verticalPadding: CGFloat
         let fontSize: CGFloat
 
+        private var isHighlighted: Bool { isFocused || isHovered }
+
         var body: some View {
             configuration.label
                 .font(.system(size: fontSize.scaled, weight: .bold))
-                .foregroundStyle(isFocused ? Theme.inkDark : .white)
+                .foregroundStyle(isHighlighted ? Theme.inkDark : .white)
                 .padding(.horizontal, horizontalPadding.scaled)
                 .padding(.vertical, verticalPadding.scaled)
                 .background(
-                    isFocused ? Color.white : Color.white.opacity(0.1),
+                    isHighlighted ? Color.white : Color.white.opacity(0.1),
                     in: Capsule()
                 )
                 .overlay(
-                    Capsule().strokeBorder(Color.white.opacity(isFocused ? 0 : 0.2), lineWidth: 3)
+                    Capsule().strokeBorder(Color.white.opacity(isHighlighted ? 0 : 0.2), lineWidth: 3)
                 )
-                .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
-                .scaleEffect(isFocused ? 1.08 : 1.0)
-                .animation(Theme.focusAnimation, value: isFocused)
+                .shadow(color: isHighlighted ? Theme.focusShadow : .clear, radius: 25, y: 20)
+                .scaleEffect(isHighlighted ? 1.08 : 1.0)
+                .animation(Theme.focusAnimation, value: isHighlighted)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }

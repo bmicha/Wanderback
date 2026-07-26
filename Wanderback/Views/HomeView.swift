@@ -218,9 +218,12 @@ private struct ModeTileButtonStyle: ButtonStyle {
 
     private struct ModeTileLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let isSelected: Bool
         let mode: GameMode
+
+        private var isHighlighted: Bool { isFocused || isHovered }
 
         var body: some View {
             configuration.label
@@ -231,15 +234,18 @@ private struct ModeTileButtonStyle: ButtonStyle {
                 .overlay(
                     RoundedRectangle(cornerRadius: 28.scaled)
                         .strokeBorder(
-                            Color.white.opacity(isSelected ? 1 : (isFocused ? 0.5 : 0)),
+                            Color.white.opacity(isSelected ? 1 : (isHighlighted ? 0.5 : 0)),
                             lineWidth: 4
                         )
                 )
-                .opacity(isSelected || isFocused ? 1 : 0.65)
+                .opacity(isSelected || isHighlighted ? 1 : 0.65)
                 .shadow(color: Theme.tileShadow, radius: 30, y: 24)
-                .scaleEffect(isFocused ? 1.08 : (isSelected ? 1.04 : 1.0))
-                .animation(Theme.focusAnimation, value: isFocused)
+                .scaleEffect(isHighlighted ? 1.08 : (isSelected ? 1.04 : 1.0))
+                .animation(Theme.focusAnimation, value: isHighlighted)
                 .animation(Theme.focusAnimation, value: isSelected)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
@@ -254,11 +260,12 @@ private struct RoundCircleButtonStyle: ButtonStyle {
 
     private struct RoundCircleLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let isSelected: Bool
 
         var body: some View {
-            let highlighted = isSelected || isFocused
+            let highlighted = isSelected || isFocused || isHovered
             configuration.label
                 .foregroundStyle(highlighted ? Theme.inkDark : .white)
                 .frame(width: 96.scaled, height: 96.scaled)
@@ -267,10 +274,14 @@ private struct RoundCircleButtonStyle: ButtonStyle {
                     in: Circle()
                 )
                 .opacity(highlighted ? 1 : 0.6)
-                .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
-                .scaleEffect(isFocused ? 1.1 : 1.0)
+                .shadow(color: (isFocused || isHovered) ? Theme.focusShadow : .clear, radius: 25, y: 20)
+                .scaleEffect((isFocused || isHovered) ? 1.1 : 1.0)
                 .animation(Theme.focusAnimation, value: isFocused)
                 .animation(Theme.focusAnimation, value: isSelected)
+                .animation(Theme.focusAnimation, value: isHovered)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
