@@ -122,7 +122,11 @@ class PhotoLibraryViewModel {
         case .authorized, .limited:
             break
         case .denied, .restricted:
+            #if os(macOS)
+            errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages Système > Confidentialité et sécurité > Photos."
+            #else
             errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages > Confidentialité > Photos."
+            #endif
             return
         case .notDetermined:
             return
