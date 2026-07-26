@@ -46,6 +46,7 @@ struct SummaryView: View {
                     }
                     .buttonStyle(GradientPillButtonStyle(horizontalPadding: 56, verticalPadding: 20, fontSize: 26))
                     .focused($replayFocused)
+                    .macDefaultActionShortcut()
 
                     Button("Changer de mode") {
                         onChangeMode()

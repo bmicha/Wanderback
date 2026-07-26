@@ -202,6 +202,7 @@ struct HomeView: View {
         }
         .buttonStyle(GradientPillButtonStyle())
         .focused($focusedElement, equals: .play)
+        .macDefaultActionShortcut()
     }
 }
 

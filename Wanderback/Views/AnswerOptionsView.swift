@@ -9,7 +9,7 @@ struct AnswerOptionsView: View {
 
     var body: some View {
         HStack(spacing: 24.scaled) {
-            ForEach(options) { option in
+            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
                 Button {
                     onSelect(option)
                 } label: {
@@ -29,6 +29,7 @@ struct AnswerOptionsView: View {
                 }
                 .buttonStyle(AnswerCardButtonStyle())
                 .focused($focusedOption, equals: option.id)
+                .macKeyboardShortcut(Character("\(index + 1)"))
             }
         }
     }

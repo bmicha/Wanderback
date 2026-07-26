@@ -255,5 +255,6 @@ struct RevealView: View {
         }
         .buttonStyle(GradientPillButtonStyle(horizontalPadding: 48, verticalPadding: 20, fontSize: 26))
         .focused($nextButtonFocused)
+        .macDefaultActionShortcut()
     }
 }
