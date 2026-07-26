@@ -17,31 +17,31 @@ struct SummaryView: View {
             worldMap
             mapVeil
 
-            VStack(spacing: 36) {
+            VStack(spacing: 36.scaled) {
                 Spacer()
 
-                VStack(spacing: 10) {
+                VStack(spacing: 10.scaled) {
                     Text("Partie terminée !")
-                        .font(.system(size: 30, weight: .bold))
+                        .font(.system(size: 30.scaled, weight: .bold))
                         .foregroundStyle(.white)
 
                     GradientText(text: finalScoreText, size: 96)
 
                     Text(scoreSubtitle)
-                        .font(.system(size: 26))
+                        .font(.system(size: 26.scaled))
                         .foregroundStyle(Theme.textSecondary)
                 }
 
                 statsLine
 
-                HStack(spacing: 30) {
+                HStack(spacing: 30.scaled) {
                     Button {
                         gameViewModel.replay()
                     } label: {
-                        HStack(spacing: 14) {
+                        HStack(spacing: 14.scaled) {
                             Text("Rejouer")
                             Image(systemName: "play.fill")
-                                .font(.system(size: 20))
+                                .font(.system(size: 20.scaled))
                         }
                     }
                     .buttonStyle(GradientPillButtonStyle(horizontalPadding: 56, verticalPadding: 20, fontSize: 26))
@@ -54,7 +54,7 @@ struct SummaryView: View {
                 }
                 .focusSection()
             }
-            .padding(.bottom, 70)
+            .padding(.bottom, 70.scaled)
         }
         .ignoresSafeArea()
         .defaultFocus($replayFocused, true)
@@ -119,12 +119,12 @@ struct SummaryView: View {
     }
 
     private var statsLine: some View {
-        HStack(spacing: 56) {
+        HStack(spacing: 56.scaled) {
             Text("\(Text("\(gameViewModel.correctAnswersCount)/\(rounds.count)").bold()) bonnes réponses")
             Text("\(Text("\(gameViewModel.totalDistanceKm.formatted(.number.grouping(.automatic))) km").bold()) parcourus")
             Text("\(Text("\(gameViewModel.countriesVisitedCount)").bold()) \(gameViewModel.countriesVisitedCount > 1 ? "pays visités" : "pays visité")")
         }
-        .font(.system(size: 25))
+        .font(.system(size: 25.scaled))
         .foregroundStyle(Theme.textSecondary)
     }
 }

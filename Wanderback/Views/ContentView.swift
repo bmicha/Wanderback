@@ -94,20 +94,20 @@ struct ContentView: View {
     }
 
     private func errorView(message: String) -> some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 32.scaled) {
             ZStack {
                 Circle()
                     .fill(Color.white.opacity(0.07))
-                    .frame(width: 120, height: 120)
+                    .frame(width: 120.scaled, height: 120.scaled)
                 Image(systemName: "photo.on.rectangle.angled")
-                    .font(.system(size: 48))
+                    .font(.system(size: 48.scaled))
                     .foregroundStyle(Theme.textSecondary)
             }
             Text(message)
-                .font(.system(size: 28))
+                .font(.system(size: 28.scaled))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 200)
+                .padding(.horizontal, 200.scaled)
         }
     }
 }

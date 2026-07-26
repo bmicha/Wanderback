@@ -33,7 +33,7 @@ struct RevealView: View {
 
             VStack {
                 resultBadge
-                    .padding(.top, 44)
+                    .padding(.top, 44.scaled)
                 Spacer()
             }
 
@@ -46,8 +46,8 @@ struct RevealView: View {
                     Spacer()
                     nextButton
                 }
-                .padding(.horizontal, 56)
-                .padding(.bottom, 44)
+                .padding(.horizontal, 56.scaled)
+                .padding(.bottom, 44.scaled)
             }
         }
         .ignoresSafeArea()
@@ -124,15 +124,15 @@ struct RevealView: View {
     // MARK: - Badge résultat
 
     private var resultBadge: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 10.scaled) {
             Image(systemName: isCorrect ? "checkmark" : "xmark")
-                .font(.system(size: 22, weight: .heavy))
+                .font(.system(size: 22.scaled, weight: .heavy))
             Text(isCorrect ? "Bonne réponse !" : "C'était…")
-                .font(.system(size: 26, weight: .heavy))
+                .font(.system(size: 26.scaled, weight: .heavy))
         }
         .foregroundStyle(Theme.inkDark)
-        .padding(.horizontal, 36)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 36.scaled)
+        .padding(.vertical, 16.scaled)
         .background(isCorrect ? Theme.success : Theme.error, in: Capsule())
         .shadow(color: Theme.tileShadow, radius: 20, y: 12)
     }
@@ -140,44 +140,44 @@ struct RevealView: View {
     // MARK: - Contenu central
 
     private var centerContent: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 16.scaled) {
             Text(round?.correctAnswer.displayName.uppercased() ?? "")
-                .font(.system(size: 104, weight: .heavy))
+                .font(.system(size: 104.scaled, weight: .heavy))
                 .tracking(4)
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
 
             Text(round?.correctAnswer.country ?? "")
-                .font(.system(size: 32))
+                .font(.system(size: 32.scaled))
                 .foregroundStyle(.white.opacity(0.85))
 
             Text(metaText)
-                .font(.system(size: 24))
+                .font(.system(size: 24.scaled))
                 .foregroundStyle(Theme.textSecondary)
 
             if gameViewModel.mode == .challenge {
                 Text("+\(gameViewModel.lastPointsEarned) pts")
-                    .font(.system(size: 30, weight: .heavy))
+                    .font(.system(size: 30.scaled, weight: .heavy))
                     .foregroundStyle(Theme.amber)
-                    .padding(.top, 8)
+                    .padding(.top, 8.scaled)
             }
         }
-        .padding(.horizontal, 70)
-        .padding(.vertical, 40)
+        .padding(.horizontal, 70.scaled)
+        .padding(.vertical, 40.scaled)
         .background {
             // Cartouche translucide : garde titre, lieu et date lisibles sur la carte
-            RoundedRectangle(cornerRadius: 28)
+            RoundedRectangle(cornerRadius: 28.scaled)
                 .fill(Color(red: 10 / 255, green: 9 / 255, blue: 20 / 255).opacity(0.55))
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28.scaled))
         }
         .overlay(
-            RoundedRectangle(cornerRadius: 28)
+            RoundedRectangle(cornerRadius: 28.scaled)
                 .strokeBorder(Color.white.opacity(0.14), lineWidth: 2)
         )
         .shadow(color: Theme.tileShadow, radius: 30, y: 20)
-        .padding(.top, 280) // sous le pin, remonté dans le tiers haut de la carte
-        .padding(.horizontal, 100)
+        .padding(.top, 280.scaled) // sous le pin, remonté dans le tiers haut de la carte
+        .padding(.horizontal, 100.scaled)
         .opacity(contentRevealed ? 1 : 0)
         .offset(y: contentRevealed ? 0 : 30)
     }
@@ -200,23 +200,23 @@ struct RevealView: View {
     @ViewBuilder
     private var sameDayThumbnails: some View {
         if !sameDayImages.isEmpty {
-            HStack(alignment: .bottom, spacing: 14) {
+            HStack(alignment: .bottom, spacing: 14.scaled) {
                 ForEach(Array(sameDayImages.enumerated()), id: \.offset) { _, image in
                     Image(platformImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 148, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .frame(width: 148.scaled, height: 100.scaled)
+                        .clipShape(RoundedRectangle(cornerRadius: 14.scaled))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
+                            RoundedRectangle(cornerRadius: 14.scaled)
                                 .strokeBorder(.white.opacity(0.2), lineWidth: 2)
                         )
                 }
 
                 Text("photos du\nmême jour")
-                    .font(.system(size: 19))
+                    .font(.system(size: 19.scaled))
                     .foregroundStyle(Theme.textTertiary)
-                    .padding(.leading, 6)
+                    .padding(.leading, 6.scaled)
             }
             .opacity(contentRevealed ? 1 : 0)
         }
@@ -247,10 +247,10 @@ struct RevealView: View {
         Button {
             gameViewModel.nextRound()
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: 12.scaled) {
                 Text(gameViewModel.isLastRound ? "Voir le récap" : "Round suivant")
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.system(size: 22.scaled, weight: .bold))
             }
         }
         .buttonStyle(GradientPillButtonStyle(horizontalPadding: 48, verticalPadding: 20, fontSize: 26))

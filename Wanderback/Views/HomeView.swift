@@ -22,7 +22,7 @@ struct HomeView: View {
             SceneBackground()
             mosaicBackground
 
-            VStack(spacing: 44) {
+            VStack(spacing: 44.scaled) {
                 header
                 modeSelection
                 roundsSelection
@@ -95,10 +95,10 @@ struct HomeView: View {
     // MARK: - Header
 
     private var header: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 14.scaled) {
             GradientText(text: "WANDERBACK", size: 84, tracking: -2)
             Text("Le quiz de VOS voyages")
-                .font(.system(size: 27))
+                .font(.system(size: 27.scaled))
                 .foregroundStyle(Theme.textSecondary)
         }
     }
@@ -106,7 +106,7 @@ struct HomeView: View {
     // MARK: - Tuiles mode
 
     private var modeSelection: some View {
-        HStack(spacing: 34) {
+        HStack(spacing: 34.scaled) {
             ForEach(GameMode.allCases) { mode in
                 Button {
                     withAnimation(Theme.focusAnimation) { selectedMode = mode }
@@ -120,32 +120,32 @@ struct HomeView: View {
     }
 
     private func modeTileLabel(_ mode: GameMode) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16.scaled) {
             Image(systemName: mode.icon)
-                .font(.system(size: 24))
+                .font(.system(size: 24.scaled))
                 .foregroundStyle(.white)
-                .frame(width: 52, height: 52)
+                .frame(width: 52.scaled, height: 52.scaled)
                 .background(Color.white.opacity(0.25), in: Circle())
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 6.scaled) {
                 Text(mode.title)
-                    .font(.system(size: 34, weight: .heavy))
+                    .font(.system(size: 34.scaled, weight: .heavy))
                 Text(mode.subtitle)
-                    .font(.system(size: 22))
+                    .font(.system(size: 22.scaled))
                     .foregroundStyle(.white.opacity(0.75))
             }
         }
         .foregroundStyle(.white)
-        .frame(width: 500 - 2 * 34, alignment: .leading)
-        .padding(34)
+        .frame(width: (500 - 2 * 34).scaled, alignment: .leading)
+        .padding(34.scaled)
     }
 
     // MARK: - Rounds
 
     private var roundsSelection: some View {
-        HStack(spacing: 28) {
+        HStack(spacing: 28.scaled) {
             Text("Rounds")
-                .font(.system(size: 24))
+                .font(.system(size: 24.scaled))
                 .foregroundStyle(Theme.textSecondary)
 
             ForEach(roundOptions, id: \.self) { count in
@@ -153,7 +153,7 @@ struct HomeView: View {
                     withAnimation(Theme.focusAnimation) { selectedRounds = count }
                 } label: {
                     Text("\(count)")
-                        .font(.system(size: 32, weight: .heavy))
+                        .font(.system(size: 32.scaled, weight: .heavy))
                 }
                 .buttonStyle(RoundCircleButtonStyle(isSelected: selectedRounds == count))
                 .focused($focusedElement, equals: .rounds(count))
@@ -164,24 +164,24 @@ struct HomeView: View {
     // MARK: - Stats
 
     private var statsRow: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 52) {
+        VStack(spacing: 10.scaled) {
+            HStack(spacing: 52.scaled) {
                 Text("\(viewModel.photoLocations.count) photos GPS")
                 Text("\(viewModel.geocodedClusters.count) lieux")
                 Text("\(viewModel.countryCount) pays")
             }
-            .font(.system(size: 22))
+            .font(.system(size: 22.scaled))
             .foregroundStyle(Theme.textTertiary)
 
             // Le geocoding continue derrière l'accueil : le compteur de lieux grossit tout seul
             if let progress = viewModel.backgroundGeocodingProgress {
-                HStack(spacing: 10) {
+                HStack(spacing: 10.scaled) {
                     ProgressView()
                         .controlSize(.small)
                         .tint(Theme.textTertiary)
                     Text("Identification des lieux en cours… \(progress.done)/\(progress.total)")
                 }
-                .font(.system(size: 19))
+                .font(.system(size: 19.scaled))
                 .foregroundStyle(Theme.textTertiary)
             }
         }
@@ -193,11 +193,11 @@ struct HomeView: View {
         Button {
             onPlay(selectedMode, selectedRounds)
         } label: {
-            HStack(spacing: 16) {
+            HStack(spacing: 16.scaled) {
                 Text("C'EST PARTI")
                     .tracking(2)
                 Image(systemName: "play.fill")
-                    .font(.system(size: 24))
+                    .font(.system(size: 24.scaled))
             }
         }
         .buttonStyle(GradientPillButtonStyle())
@@ -226,10 +226,10 @@ private struct ModeTileButtonStyle: ButtonStyle {
             configuration.label
                 .background(
                     mode == .souvenir ? Theme.souvenirTileGradient : Theme.challengeTileGradient,
-                    in: RoundedRectangle(cornerRadius: 28)
+                    in: RoundedRectangle(cornerRadius: 28.scaled)
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 28)
+                    RoundedRectangle(cornerRadius: 28.scaled)
                         .strokeBorder(
                             Color.white.opacity(isSelected ? 1 : (isFocused ? 0.5 : 0)),
                             lineWidth: 4
@@ -261,7 +261,7 @@ private struct RoundCircleButtonStyle: ButtonStyle {
             let highlighted = isSelected || isFocused
             configuration.label
                 .foregroundStyle(highlighted ? Theme.inkDark : .white)
-                .frame(width: 96, height: 96)
+                .frame(width: 96.scaled, height: 96.scaled)
                 .background(
                     highlighted ? Color.white : Color.white.opacity(0.08),
                     in: Circle()

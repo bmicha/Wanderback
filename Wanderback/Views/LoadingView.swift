@@ -9,27 +9,27 @@ struct LoadingView: View {
         ZStack {
             SceneBackground()
 
-            VStack(spacing: 44) {
+            VStack(spacing: 44.scaled) {
                 globe
 
                 GradientText(text: "WANDERBACK", size: 76, tracking: -2)
 
                 Text("Analyse de vos photos…")
-                    .font(.system(size: 28))
+                    .font(.system(size: 28.scaled))
                     .foregroundStyle(Theme.textSecondary)
 
                 progressBar
 
-                VStack(spacing: 20) {
+                VStack(spacing: 20.scaled) {
                     Text(viewModel.currentStep.label)
-                        .font(.system(size: 24))
+                        .font(.system(size: 24.scaled))
                         .foregroundStyle(Theme.textSecondary)
                         .contentTransition(.numericText())
                         .animation(.default, value: viewModel.currentStep.label)
 
                     if viewModel.totalPhotoCount > 0 {
                         Text(viewModel.gpsStatsText)
-                            .font(.system(size: 24))
+                            .font(.system(size: 24.scaled))
                             .foregroundStyle(Theme.textTertiary)
                     }
                 }
@@ -42,11 +42,11 @@ struct LoadingView: View {
     private var globe: some View {
         Circle()
             .fill(Theme.signatureGradient)
-            .frame(width: 140, height: 140)
+            .frame(width: 140.scaled, height: 140.scaled)
             .overlay(
                 Circle()
                     .strokeBorder(Color.white.opacity(0.9), lineWidth: 8)
-                    .frame(width: 64, height: 64)
+                    .frame(width: 64.scaled, height: 64.scaled)
             )
             .shadow(color: Theme.rose.opacity(0.5), radius: 90)
             .scaleEffect(isPulsing ? 1.12 : 1.0)
@@ -70,12 +70,12 @@ struct LoadingView: View {
                 // Progression indéterminée : segment qui pulse
                 Capsule()
                     .fill(Theme.signatureGradient)
-                    .frame(width: 200)
+                    .frame(width: 200.scaled)
                     .opacity(isPulsing ? 0.9 : 0.3)
                     .animation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: isPulsing)
             }
         }
-        .frame(width: 900, height: 12)
+        .frame(width: 900.scaled, height: 12.scaled)
     }
 }
 

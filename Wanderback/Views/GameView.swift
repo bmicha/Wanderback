@@ -85,22 +85,22 @@ struct GameView: View {
 
             Spacer()
 
-            HStack(spacing: 32) {
+            HStack(spacing: 32.scaled) {
                 Text("Round \(Text("\(currentRoundNumber)").bold())/\(totalRounds)")
-                    .font(.system(size: 24))
+                    .font(.system(size: 24.scaled))
                     .foregroundStyle(Theme.textSecondary)
 
                 if gameViewModel.mode == .challenge {
                     timerRing
 
                     Text("\(gameViewModel.score.formatted(.number.grouping(.automatic))) pts")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 24.scaled, weight: .bold))
                         .foregroundStyle(Theme.amber)
                 }
             }
         }
-        .padding(.horizontal, 56)
-        .padding(.vertical, 36)
+        .padding(.horizontal, 56.scaled)
+        .padding(.vertical, 36.scaled)
     }
 
     /// Anneau chrono 68×68 : l'arc ambre se vide avec le temps.
@@ -118,19 +118,19 @@ struct GameView: View {
                 .rotationEffect(.degrees(-90))
                 .padding(3)
             Text("\(Int(gameViewModel.timerRemaining.rounded(.up)))")
-                .font(.system(size: 24, weight: .heavy))
+                .font(.system(size: 24.scaled, weight: .heavy))
                 .foregroundStyle(.white)
                 .contentTransition(.numericText(countsDown: true))
         }
-        .frame(width: 68, height: 68)
+        .frame(width: 68.scaled, height: 68.scaled)
     }
 
     // MARK: - Question + réponses
 
     private var bottomSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 24.scaled) {
             Text("Où cette photo a-t-elle été prise ?")
-                .font(.system(size: 26))
+                .font(.system(size: 26.scaled))
                 .foregroundStyle(.white)
 
             if let round = gameViewModel.currentRound {
@@ -140,8 +140,8 @@ struct GameView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 56)
-        .padding(.bottom, 44)
+        .padding(.horizontal, 56.scaled)
+        .padding(.bottom, 44.scaled)
     }
 
     private var currentRoundNumber: Int {

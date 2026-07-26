@@ -59,6 +59,16 @@ enum Theme {
 
     /// Durée standard des transitions de focus (180 ms)
     static let focusAnimation = Animation.easeOut(duration: 0.18)
+
+    // MARK: - Échelle plateforme
+
+    /// L'UI est calibrée pour un canvas TV 1920×1080 regardé à 3 m ; en fenêtre
+    /// Mac (~1280 pt) typo et espacements sont réduits d'un facteur global.
+    #if os(macOS)
+    static let scale: CGFloat = 0.62
+    #else
+    static let scale: CGFloat = 1.0
+    #endif
 }
 
 extension Color {
@@ -69,6 +79,15 @@ extension Color {
             blue: Double(hex & 0xFF) / 255
         )
     }
+}
+
+extension CGFloat {
+    /// Valeur de design (canvas TV) ramenée à l'échelle de la plateforme.
+    var scaled: CGFloat { self * Theme.scale }
+}
+
+extension Int {
+    var scaled: CGFloat { CGFloat(self) * Theme.scale }
 }
 
 // MARK: - Fond de scène
@@ -112,10 +131,10 @@ struct GradientPillButtonStyle: ButtonStyle {
 
         var body: some View {
             configuration.label
-                .font(.system(size: fontSize, weight: .heavy))
+                .font(.system(size: fontSize.scaled, weight: .heavy))
                 .foregroundStyle(Theme.inkDark)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
+                .padding(.horizontal, horizontalPadding.scaled)
+                .padding(.vertical, verticalPadding.scaled)
                 .background(Theme.signatureGradient, in: Capsule())
                 .shadow(
                     color: isFocused ? Theme.ctaHalo : Theme.ctaHalo.opacity(0.5),
@@ -151,10 +170,10 @@ struct SecondaryPillButtonStyle: ButtonStyle {
 
         var body: some View {
             configuration.label
-                .font(.system(size: fontSize, weight: .bold))
+                .font(.system(size: fontSize.scaled, weight: .bold))
                 .foregroundStyle(isFocused ? Theme.inkDark : .white)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
+                .padding(.horizontal, horizontalPadding.scaled)
+                .padding(.vertical, verticalPadding.scaled)
                 .background(
                     isFocused ? Color.white : Color.white.opacity(0.1),
                     in: Capsule()
@@ -178,7 +197,7 @@ struct GradientText: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: size, weight: weight))
+            .font(.system(size: size.scaled, weight: weight))
             .tracking(tracking)
             .foregroundStyle(Theme.signatureGradient)
     }

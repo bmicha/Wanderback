@@ -8,24 +8,24 @@ struct AnswerOptionsView: View {
     @FocusState private var focusedOption: UUID?
 
     var body: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 24.scaled) {
             ForEach(options) { option in
                 Button {
                     onSelect(option)
                 } label: {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(option.displayName)
-                            .font(.system(size: 28, weight: .heavy))
+                            .font(.system(size: 28.scaled, weight: .heavy))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         Text(option.country)
-                            .font(.system(size: 21))
+                            .font(.system(size: 21.scaled))
                             .opacity(0.6)
                             .lineLimit(1)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 28)
-                    .padding(.vertical, 24)
+                    .padding(.horizontal, 28.scaled)
+                    .padding(.vertical, 24.scaled)
                 }
                 .buttonStyle(AnswerCardButtonStyle())
                 .focused($focusedOption, equals: option.id)
@@ -49,15 +49,15 @@ private struct AnswerCardButtonStyle: ButtonStyle {
                 .foregroundStyle(isFocused ? Theme.inkDark : .white)
                 .background {
                     if isFocused {
-                        RoundedRectangle(cornerRadius: 20).fill(Color.white)
+                        RoundedRectangle(cornerRadius: 20.scaled).fill(Color.white)
                     } else {
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: 20.scaled)
                             .fill(Theme.answerSurface)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20.scaled))
                     }
                 }
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 20.scaled)
                         .strokeBorder(isFocused ? Color.clear : Theme.answerBorder, lineWidth: 3)
                 )
                 .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
