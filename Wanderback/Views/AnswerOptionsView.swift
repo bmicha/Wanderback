@@ -13,7 +13,7 @@ struct AnswerOptionsView: View {
                 Button {
                     onSelect(option)
                 } label: {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 6.scaled) {
                         Text(option.displayName)
                             .font(.system(size: 28.scaled, weight: .heavy))
                             .lineLimit(1)
