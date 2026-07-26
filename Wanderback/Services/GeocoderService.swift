@@ -35,6 +35,14 @@ class GeocoderService {
         }
 
         // 2. Géocoder avec retry sur rate-limit
+        // MKReverseGeocodingRequest / MKAddressRepresentations n'existent que depuis macOS 26
+        // (déjà satisfait par TVOS_DEPLOYMENT_TARGET = 26.2, mais pas par
+        // MACOSX_DEPLOYMENT_TARGET = 14.0 de la cible WanderbackMac).
+        guard #available(macOS 26.0, *) else {
+            logger.warning("Reverse geocoding requires macOS 26 or later")
+            return nil
+        }
+
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
 
         for attempt in 0...Self.maxRetries {
@@ -81,6 +89,7 @@ class GeocoderService {
 
     /// Extrait la région administrative (« CA », « Île-de-France »…) de `cityWithContext`
     /// (« Cupertino, CA ») — MKAddressRepresentations ne l'expose pas directement.
+    @available(macOS 26.0, *)
     private func administrativeArea(from address: MKAddressRepresentations) -> String? {
         guard let city = address.cityName,
               let cityWithContext = address.cityWithContext,
