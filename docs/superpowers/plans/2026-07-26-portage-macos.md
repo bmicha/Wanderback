@@ -15,7 +15,7 @@
 - Branche de travail : `feature/portage-macos` (déjà créée).
 - **Toujours préfixer les commandes `xcodebuild`/`xcrun`** : `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer` (xcode-select pointe sur les CommandLineTools — cf. mémoire machine).
 - Ne pas lancer d'app avec `open -a` (échoue sur macOS 27 bêta, erreur -10664) : exécuter le binaire du bundle directement.
-- Cible Mac : nom `WanderbackMac`, `PRODUCT_NAME = Wanderback`, `PRODUCT_BUNDLE_IDENTIFIER = com.bastien.Wanderback` (même app record App Store Connect que tvOS), `DEVELOPMENT_TEAM = XKFAS389Q8`, `MACOSX_DEPLOYMENT_TARGET = 14.0`, `SWIFT_VERSION = 5.0`.
+- Cible Mac : nom `WanderbackMac`, `PRODUCT_NAME = Wanderback`, `PRODUCT_BUNDLE_IDENTIFIER = com.bastien.Wanderback` (même app record App Store Connect que tvOS), `DEVELOPMENT_TEAM = XKFAS389Q8`, `MACOSX_DEPLOYMENT_TARGET = 26.0`, `SWIFT_VERSION = 5.0`.
 - La cible tvOS existante (`Wanderback`, tvOS 26.2) ne doit être modifiée par aucune tâche ; chaque tâche se termine par une vérification que la build tvOS passe encore :
   ```bash
   cd "/Users/bastienmicha/Claude Projects/Wanderback"
@@ -226,7 +226,7 @@ Sept insertions, toutes dans `Wanderback.xcodeproj/project.pbxproj` :
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bastien.Wanderback;
 				PRODUCT_NAME = Wanderback;
@@ -261,7 +261,7 @@ Sept insertions, toutes dans `Wanderback.xcodeproj/project.pbxproj` :
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bastien.Wanderback;
 				PRODUCT_NAME = Wanderback;
@@ -799,7 +799,7 @@ Lancer sans `-demoMode` ; macOS affiche le prompt d'accès Photos (l'utilisateur
 
 - Ligne 3 : `> Jeu de reconnaissance de lieux à partir de tes photos de vacances · Apple TV (tvOS) & Mac (macOS)`
 - Ligne 5 : remplacer « est une application tvOS » par « est une application tvOS et macOS ».
-- Section Prérequis, ajouter : `- ou un Mac sous macOS 14+ (cible WanderbackMac)`.
+- Section Prérequis, ajouter : `- ou un Mac sous macOS 26+ (cible WanderbackMac)`.
 
 - [ ] **Step 5: Vérifier les deux builds une dernière fois, puis commit**
 

@@ -21,7 +21,7 @@ même procédure archive → altool que pour tvOS.
 - Chaque cible garde son Info.plist, ses entitlements, son icône et sa signature.
 - Les divergences de code sont gérées par `#if os(tvOS)` / `#if os(macOS)` et une
   petite couche d'abstraction plateforme.
-- Cible minimale : **macOS 14.0** (aligné sur tvOS 17 ; SwiftData exige macOS 14).
+- Cible minimale : **macOS 26.0** (alignée sur tvOS 26.2 ; `MKReverseGeocodingRequest` utilisé par GeocoderService exige macOS 26).
 - La cible tvOS et sa procédure TestFlight existante ne sont pas modifiées.
 
 ## Composants
@@ -101,7 +101,7 @@ que sur l'Apple TV.
 
 ### 6. SwiftData / persistance
 
-`LocationCache` fonctionne tel quel sur macOS 14+. Le store est propre à chaque
+`LocationCache` fonctionne tel quel sur macOS 26+. Le store est propre à chaque
 appareil (pas de sync), comme aujourd'hui : le Mac reconstruira son index de lieux au
 premier lancement. Aucun changement de code attendu.
 
