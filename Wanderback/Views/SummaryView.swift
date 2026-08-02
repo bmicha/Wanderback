@@ -6,7 +6,13 @@ struct SummaryView: View {
     /// Retour à l'accueil pour changer de mode
     let onChangeMode: () -> Void
 
-    @FocusState private var replayFocused: Bool
+    @FocusState private var focusedButton: SummaryButton?
+
+    /// Deux boutons de l'écran de résumé, pour piloter la surbrillance clavier sur macOS.
+    private enum SummaryButton: Hashable {
+        case replay
+        case changeMode
+    }
 
     private var rounds: [GameRound] { gameViewModel.session?.rounds ?? [] }
 
@@ -45,20 +51,35 @@ struct SummaryView: View {
                         }
                     }
                     .buttonStyle(GradientPillButtonStyle(horizontalPadding: 56, verticalPadding: 20, fontSize: 26))
-                    .focused($replayFocused)
+                    .macFocusable()
+                    .focused($focusedButton, equals: .replay)
+                    .macFocusOnHover($focusedButton, equals: .replay)
                     .macDefaultActionShortcut()
 
                     Button("Changer de mode") {
                         onChangeMode()
                     }
                     .buttonStyle(SecondaryPillButtonStyle())
+                    .macFocusable()
+                    .focused($focusedButton, equals: .changeMode)
+                    .macFocusOnHover($focusedButton, equals: .changeMode)
                 }
                 .focusSection()
+                .macMoveCommand { direction in
+                    switch (focusedButton, direction) {
+                    case (.replay, .right):
+                        focusedButton = .changeMode
+                    case (.changeMode, .left):
+                        focusedButton = .replay
+                    default:
+                        break
+                    }
+                }
             }
             .padding(.bottom, 70.scaled)
         }
         .ignoresSafeArea()
-        .defaultFocus($replayFocused, true)
+        .initialFocus($focusedButton, .replay)
     }
 
     // MARK: - Carte du monde avec les lieux joués

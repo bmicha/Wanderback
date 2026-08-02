@@ -28,10 +28,41 @@ struct AnswerOptionsView: View {
                     .padding(.vertical, 24.scaled)
                 }
                 .buttonStyle(AnswerCardButtonStyle())
+                .macFocusable()
                 .focused($focusedOption, equals: option.id)
+                .macFocusOnHover($focusedOption, equals: option.id)
                 .macKeyboardShortcut(Character("\(index + 1)"))
             }
         }
+        .macMoveCommand { direction in
+            guard let currentIndex = options.firstIndex(where: { $0.id == focusedOption }) else { return }
+            switch direction {
+            case .left where currentIndex > 0:
+                focusedOption = options[currentIndex - 1].id
+            case .right where currentIndex < options.count - 1:
+                focusedOption = options[currentIndex + 1].id
+            default:
+                break
+            }
+        }
+        #if os(macOS)
+        // Focus initial sur la première carte, refait à chaque nouveau round
+        // (les options changent mais la vue garde son identité structurelle).
+        .onChange(of: options.map(\.id), initial: true) { _, _ in
+            focusedOption = options.first?.id
+        }
+        .background {
+            Button("") {
+                if let option = options.first(where: { $0.id == focusedOption }) {
+                    onSelect(option)
+                }
+            }
+            .keyboardShortcut(.defaultAction)
+            .opacity(0)
+            .frame(width: 0, height: 0)
+            .accessibilityHidden(true)
+        }
+        #endif
     }
 }
 

@@ -5,7 +5,13 @@ struct NotEnoughPlacesView: View {
     let viewModel: PhotoLibraryViewModel
 
     @State private var showingHelp = false
-    @FocusState private var demoFocused: Bool
+    @FocusState private var focusedButton: NotEnoughPlacesButton?
+
+    /// Deux boutons de cet écran, pour piloter la surbrillance clavier sur macOS.
+    private enum NotEnoughPlacesButton: Hashable {
+        case help
+        case demo
+    }
 
     var body: some View {
         ZStack {
@@ -31,6 +37,9 @@ struct NotEnoughPlacesView: View {
                         withAnimation(Theme.focusAnimation) { showingHelp.toggle() }
                     }
                     .buttonStyle(SecondaryPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
+                    .macFocusable()
+                    .focused($focusedButton, equals: .help)
+                    .macFocusOnHover($focusedButton, equals: .help)
 
                     Button {
                         viewModel.startDemoMode()
@@ -42,13 +51,25 @@ struct NotEnoughPlacesView: View {
                         }
                     }
                     .buttonStyle(GradientPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
-                    .focused($demoFocused)
+                    .macFocusable()
+                    .focused($focusedButton, equals: .demo)
+                    .macFocusOnHover($focusedButton, equals: .demo)
                 }
                 .padding(.top, 8.scaled)
+                .macMoveCommand { direction in
+                    switch (focusedButton, direction) {
+                    case (.demo, .left):
+                        focusedButton = .help
+                    case (.help, .right):
+                        focusedButton = .demo
+                    default:
+                        break
+                    }
+                }
             }
             .padding(.horizontal, 200.scaled)
         }
-        .defaultFocus($demoFocused, true)
+        .initialFocus($focusedButton, .demo)
     }
 
     /// Pastille 120 : cercle translucide + point erreur.

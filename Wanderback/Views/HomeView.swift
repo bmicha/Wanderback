@@ -29,14 +29,54 @@ struct HomeView: View {
                 statsRow
                 playButton
             }
+            .macMoveCommand(handleMoveCommand)
         }
-        .defaultFocus($focusedElement, .play)
+        .initialFocus($focusedElement, .play)
         .task {
             mosaicImages = await PhotoImageLoader.shared.loadRandomImages(
                 from: viewModel.photoLocations,
                 count: 10,
                 targetSize: CGSize(width: 500, height: 400)
             )
+        }
+    }
+
+    // MARK: - Navigation clavier macOS
+
+    /// Ordre des rangées : tuiles de mode → rounds → bouton « C'EST PARTI ».
+    /// Appelé uniquement sur macOS (cf. `macMoveCommand`) ; tvOS garde son moteur de focus natif.
+    private func handleMoveCommand(_ direction: MoveCommandDirection) {
+        guard let current = focusedElement else { return }
+        switch current {
+        case .mode(let mode):
+            switch direction {
+            case .left, .right:
+                let modes = GameMode.allCases
+                guard let index = modes.firstIndex(of: mode) else { return }
+                let newIndex = direction == .left ? index - 1 : index + 1
+                if modes.indices.contains(newIndex) { focusedElement = .mode(modes[newIndex]) }
+            case .down:
+                focusedElement = .rounds(selectedRounds)
+            default:
+                break
+            }
+        case .rounds(let count):
+            switch direction {
+            case .left, .right:
+                guard let index = roundOptions.firstIndex(of: count) else { return }
+                let newIndex = direction == .left ? index - 1 : index + 1
+                if roundOptions.indices.contains(newIndex) { focusedElement = .rounds(roundOptions[newIndex]) }
+            case .up:
+                focusedElement = .mode(selectedMode)
+            case .down:
+                focusedElement = .play
+            default:
+                break
+            }
+        case .play:
+            if direction == .up {
+                focusedElement = .rounds(selectedRounds)
+            }
         }
     }
 
@@ -114,7 +154,9 @@ struct HomeView: View {
                     modeTileLabel(mode)
                 }
                 .buttonStyle(ModeTileButtonStyle(isSelected: selectedMode == mode, mode: mode))
+                .macFocusable()
                 .focused($focusedElement, equals: .mode(mode))
+                .macFocusOnHover($focusedElement, equals: .mode(mode))
             }
         }
     }
@@ -156,7 +198,9 @@ struct HomeView: View {
                         .font(.system(size: 32.scaled, weight: .heavy))
                 }
                 .buttonStyle(RoundCircleButtonStyle(isSelected: selectedRounds == count))
+                .macFocusable()
                 .focused($focusedElement, equals: .rounds(count))
+                .macFocusOnHover($focusedElement, equals: .rounds(count))
             }
         }
     }
@@ -201,7 +245,9 @@ struct HomeView: View {
             }
         }
         .buttonStyle(GradientPillButtonStyle())
+        .macFocusable()
         .focused($focusedElement, equals: .play)
+        .macFocusOnHover($focusedElement, equals: .play)
         .macDefaultActionShortcut()
     }
 }
