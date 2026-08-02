@@ -21,7 +21,9 @@ struct SummaryView: View {
             // Sous la carte : évite un écran vide pendant l'initialisation MapKit
             SceneBackground()
             worldMap
+                .ignoresSafeArea()
             mapVeil
+                .ignoresSafeArea()
 
             VStack(spacing: 36.scaled) {
                 Spacer()
@@ -77,8 +79,8 @@ struct SummaryView: View {
                 }
             }
             .padding(.bottom, 70.scaled)
+            .tvIgnoresSafeArea()
         }
-        .ignoresSafeArea()
         .initialFocus($focusedButton, .replay)
     }
 
