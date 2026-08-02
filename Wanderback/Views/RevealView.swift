@@ -29,15 +29,19 @@ struct RevealView: View {
             // Sous la carte : évite un écran vide pendant l'initialisation MapKit
             SceneBackground()
             map
+                .ignoresSafeArea()
             vignette
+                .ignoresSafeArea()
 
             VStack {
                 resultBadge
                     .padding(.top, 44.scaled)
                 Spacer()
             }
+            .tvIgnoresSafeArea()
 
             centerContent
+                .tvIgnoresSafeArea()
 
             VStack {
                 Spacer()
@@ -49,8 +53,8 @@ struct RevealView: View {
                 .padding(.horizontal, 56.scaled)
                 .padding(.bottom, 44.scaled)
             }
+            .tvIgnoresSafeArea()
         }
-        .ignoresSafeArea()
         .defaultFocus($nextButtonFocused, true)
         .onAppear { startCinematicZoom() }
         .task { await loadSameDayPhotos() }

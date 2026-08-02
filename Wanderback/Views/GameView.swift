@@ -11,15 +11,17 @@ struct GameView: View {
     var body: some View {
         ZStack {
             photoBackground
+                .ignoresSafeArea()
             scrim
+                .ignoresSafeArea()
 
             VStack {
                 topBar
                 Spacer()
                 bottomSection
             }
+            .tvIgnoresSafeArea()
         }
-        .ignoresSafeArea()
         .task(id: gameViewModel.currentRound?.id) {
             await loadRoundPhoto()
         }

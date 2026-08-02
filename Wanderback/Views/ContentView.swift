@@ -63,6 +63,9 @@ struct ContentView: View {
         .onExitCommand {
             gameViewModel.quit()
         }
+        .macCancelShortcut {
+            gameViewModel.quit()
+        }
     }
 
     /// Dev uniquement : `-screen game|reveal|summary` saute directement à un écran
