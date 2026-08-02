@@ -55,7 +55,7 @@ struct RevealView: View {
             }
             .tvIgnoresSafeArea()
         }
-        .defaultFocus($nextButtonFocused, true)
+        .initialFocus($nextButtonFocused, true)
         .onAppear { startCinematicZoom() }
         .task { await loadSameDayPhotos() }
     }
@@ -258,7 +258,9 @@ struct RevealView: View {
             }
         }
         .buttonStyle(GradientPillButtonStyle(horizontalPadding: 48, verticalPadding: 20, fontSize: 26))
+        .macFocusable()
         .focused($nextButtonFocused)
+        .macFocusOnHover($nextButtonFocused, equals: true)
         .macDefaultActionShortcut()
     }
 }
