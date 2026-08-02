@@ -27,12 +27,15 @@ func renderIcon(pixels: Int) -> Data {
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
     let side = CGFloat(pixels)
-    // Rayon des icônes macOS : ~185/824 du canvas utile, appliqué plein cadre ici
-    let radius = side * 234.0 / 1024.0
-    NSBezierPath(roundedRect: NSRect(x: 0, y: 0, width: side, height: side),
+    // Grille d'icône macOS : le contenu visible occupe un carré de 824/1024 du canvas,
+    // centré dans un cadre transparent, avec un rayon de coin de 185.4/1024 du côté.
+    let iconSide = side * 824.0 / 1024.0
+    let radius = side * 185.4 / 1024.0
+    let origin = (side - iconSide) / 2
+    NSBezierPath(roundedRect: NSRect(x: origin, y: origin, width: iconSide, height: iconSide),
                  xRadius: radius, yRadius: radius).addClip()
     for layer in layers {
-        let scale = max(side / layer.size.width, side / layer.size.height)
+        let scale = max(iconSide / layer.size.width, iconSide / layer.size.height)
         let w = layer.size.width * scale
         let h = layer.size.height * scale
         layer.draw(in: NSRect(x: (side - w) / 2, y: (side - h) / 2, width: w, height: h),
