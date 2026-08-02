@@ -92,13 +92,13 @@ class PhotoLibraryViewModel {
     }
 
     func requestAccessAndLoadPhotos(modelContext: ModelContext) async {
+        #if DEBUG
         // Lancement direct en mode démo (dev / démonstration sans bibliothèque photo)
         if ProcessInfo.processInfo.arguments.contains("-demoMode") {
             startDemoMode()
             return
         }
 
-        #if DEBUG
         // Dev uniquement : fige l'écran de chargement pour vérification visuelle
         if let flagIndex = ProcessInfo.processInfo.arguments.firstIndex(of: "-screen"),
            ProcessInfo.processInfo.arguments.dropFirst(flagIndex + 1).first == "loading" {
