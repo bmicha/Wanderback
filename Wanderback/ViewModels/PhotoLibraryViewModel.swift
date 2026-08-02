@@ -107,6 +107,13 @@ class PhotoLibraryViewModel {
             currentStep = .geocoding(current: 14, total: 23)
             return
         }
+
+        // Dev uniquement : force l'écran "pas assez de destinations" pour vérification
+        // visuelle — cet écran n'apparaît que sous 4 lieux distincts dans la vraie bibliothèque.
+        if ProcessInfo.processInfo.arguments.contains("-notEnoughPlaces") {
+            notEnoughPhotos = true
+            return
+        }
         #endif
 
         isLoading = true
