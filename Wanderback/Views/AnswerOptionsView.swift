@@ -51,18 +51,12 @@ struct AnswerOptionsView: View {
         .onChange(of: options.map(\.id), initial: true) { _, _ in
             focusedOption = options.first?.id
         }
-        .background {
-            Button("") {
-                if let option = options.first(where: { $0.id == focusedOption }) {
-                    onSelect(option)
-                }
-            }
-            .keyboardShortcut(.defaultAction)
-            .opacity(0)
-            .frame(width: 0, height: 0)
-            .accessibilityHidden(true)
-        }
         #endif
+        .macShortcutAction(.return) {
+            if let option = options.first(where: { $0.id == focusedOption }) {
+                onSelect(option)
+            }
+        }
     }
 }
 

@@ -30,17 +30,9 @@ struct HomeView: View {
                 playButton
             }
             .macMoveCommand(handleMoveCommand)
-            #if os(macOS)
             // Constaté empiriquement : Espace n'active pas nativement un bouton focalisé ici
             // (contrairement à ce que suggérait le brief) — posé explicitement.
-            .background {
-                Button("") { activateFocusedElement() }
-                    .keyboardShortcut(.space, modifiers: [])
-                    .opacity(0)
-                    .frame(width: 0, height: 0)
-                    .accessibilityHidden(true)
-            }
-            #endif
+            .macShortcutAction(.space) { activateFocusedElement() }
         }
         .initialFocus($focusedElement, .play)
         .task {
@@ -94,7 +86,13 @@ struct HomeView: View {
     /// Active l'élément actuellement en surbrillance (Espace) : même effet que cliquer dessus.
     private func activateFocusedElement() {
         guard let current = focusedElement else { return }
-        switch current {
+        activate(current)
+    }
+
+    /// Ce que fait un élément de l'accueil quand on l'active — bouton de tuile cliqué ou
+    /// handler Espace : une seule définition, pour que les deux chemins restent identiques.
+    private func activate(_ element: HomeElement) {
+        switch element {
         case .mode(let mode):
             withAnimation(Theme.focusAnimation) { selectedMode = mode }
         case .rounds(let count):
@@ -173,7 +171,7 @@ struct HomeView: View {
         HStack(spacing: 34.scaled) {
             ForEach(GameMode.allCases) { mode in
                 Button {
-                    withAnimation(Theme.focusAnimation) { selectedMode = mode }
+                    activate(.mode(mode))
                 } label: {
                     modeTileLabel(mode)
                 }
@@ -216,7 +214,7 @@ struct HomeView: View {
 
             ForEach(roundOptions, id: \.self) { count in
                 Button {
-                    withAnimation(Theme.focusAnimation) { selectedRounds = count }
+                    activate(.rounds(count))
                 } label: {
                     Text("\(count)")
                         .font(.system(size: 32.scaled, weight: .heavy))
@@ -259,7 +257,7 @@ struct HomeView: View {
 
     private var playButton: some View {
         Button {
-            onPlay(selectedMode, selectedRounds)
+            activate(.play)
         } label: {
             HStack(spacing: 16.scaled) {
                 Text("C'EST PARTI")

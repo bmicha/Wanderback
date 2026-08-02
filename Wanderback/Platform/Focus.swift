@@ -15,23 +15,18 @@ extension View {
     /// déjà éprouvé que `macCancelShortcut`/`macKeyboardShortcut` ci-dessus) est conservée telle
     /// quelle car elle fonctionne et reste dans le style du fichier, mais `onMoveCommand` aurait
     /// sans doute fonctionné tout aussi bien une fois `.defaultFocus` remplacé par `initialFocus`.
+    ///
+    /// Un seul `macMoveCommand` actif à la fois par fenêtre : les raccourcis flèches sont des
+    /// équivalents-clavier à l'échelle de la fenêtre, pas des gestes locaux à la vue. Deux vues le
+    /// portant simultanément entreraient en conflit à comportement indéfini, et tout futur champ
+    /// texte ou vue défilante sur le même écran se verrait voler ses flèches.
     @ViewBuilder
     func macMoveCommand(_ action: @escaping (MoveCommandDirection) -> Void) -> some View {
-        #if os(macOS)
-        self.background {
-            Group {
-                Button("") { action(.left) }.keyboardShortcut(.leftArrow, modifiers: [])
-                Button("") { action(.right) }.keyboardShortcut(.rightArrow, modifiers: [])
-                Button("") { action(.up) }.keyboardShortcut(.upArrow, modifiers: [])
-                Button("") { action(.down) }.keyboardShortcut(.downArrow, modifiers: [])
-            }
-            .opacity(0)
-            .frame(width: 0, height: 0)
-            .accessibilityHidden(true)
-        }
-        #else
         self
-        #endif
+            .macShortcutAction(.leftArrow) { action(.left) }
+            .macShortcutAction(.rightArrow) { action(.right) }
+            .macShortcutAction(.upArrow) { action(.up) }
+            .macShortcutAction(.downArrow) { action(.down) }
     }
 
     /// Sur macOS, survoler un contrôle lui donne le focus clavier, pour que la surbrillance
@@ -51,6 +46,10 @@ extension View {
     /// « Navigation au clavier » (Réglages Système > Clavier > Navigation au clavier) — sans quoi
     /// `@FocusState` ne peut pas poser le focus sur un bouton. No-op sur tvOS, déjà focalisable
     /// nativement par le moteur de focus de la télécommande.
+    ///
+    /// **Doit précéder** `.focused(_:equals:)` dans la chaîne de modificateurs : posé après, le
+    /// focus AppKit atterrit dans un wrapper distinct (anneau bleu visible) déconnecté du
+    /// `@FocusState`, qui reste à `nil` et n'active jamais le style personnalisé.
     @ViewBuilder
     func macFocusable() -> some View {
         #if os(macOS)

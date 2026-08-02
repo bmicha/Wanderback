@@ -25,10 +25,17 @@ extension View {
     /// gère déjà le bouton Menu de la télécommande.
     @ViewBuilder
     func macCancelShortcut(_ action: @escaping () -> Void) -> some View {
+        macShortcutAction(.escape, perform: action)
+    }
+
+    /// Associe une touche à une action à l'échelle de la fenêtre, sans contrôle visible :
+    /// le raccourci est délivré quel que soit l'élément qui a le focus. No-op sur tvOS.
+    @ViewBuilder
+    func macShortcutAction(_ key: KeyEquivalent, perform action: @escaping () -> Void) -> some View {
         #if os(macOS)
         self.background {
             Button("", action: action)
-                .keyboardShortcut(.cancelAction)
+                .keyboardShortcut(key, modifiers: [])
                 .opacity(0)
                 .frame(width: 0, height: 0)
                 .accessibilityHidden(true)
