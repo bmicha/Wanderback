@@ -333,7 +333,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -projec
 ```
 Attendu : `Targets: Wanderback, WanderbackMac` et `Schemes: Wanderback, WanderbackMac`.
 
-Puis la build Mac ET la build tvOS des contraintes globales. Attendu : `** BUILD SUCCEEDED **` pour les deux. En cas d'erreur de compilation Swift sur la build Mac (API indisponible en macOS 14), corriger au cas par cas avec `#if os(macOS)` — aucune n'est attendue (`focusSection` existe depuis macOS 13, `onExitCommand` depuis macOS 10.15, `@Observable`/SwiftData/MapKit SwiftUI depuis macOS 14).
+Puis la build Mac ET la build tvOS des contraintes globales. Attendu : `** BUILD SUCCEEDED **` pour les deux. En cas d'erreur de compilation Swift sur la build Mac (API indisponible en macOS 26), corriger au cas par cas avec `#if os(macOS)` — aucune n'est attendue (`focusSection` existe depuis macOS 13, `onExitCommand` depuis macOS 10.15, `@Observable`/SwiftData/MapKit SwiftUI depuis macOS 14). Ce qui s'est réellement passé : `MKReverseGeocodingRequest` exigeait macOS 26, ce qui a conduit à relever la cible de macOS 14 à macOS 26.
 
 - [ ] **Step 5: Commit**
 

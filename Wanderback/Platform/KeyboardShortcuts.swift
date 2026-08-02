@@ -44,5 +44,4 @@ extension View {
         self
         #endif
     }
-
 }

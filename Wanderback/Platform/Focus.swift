@@ -12,9 +12,11 @@ extension View {
     /// tant qu'il reste posé sur la vue, toute réaffectation ultérieure du `@FocusState` — par
     /// n'importe quel mécanisme — est silencieusement annulée et retombe sur la valeur par
     /// défaut. Cette implémentation par bouton invisible + `keyboardShortcut` (même mécanisme
-    /// déjà éprouvé que `macCancelShortcut`/`macKeyboardShortcut` ci-dessus) est conservée telle
-    /// quelle car elle fonctionne et reste dans le style du fichier, mais `onMoveCommand` aurait
-    /// sans doute fonctionné tout aussi bien une fois `.defaultFocus` remplacé par `initialFocus`.
+    /// déjà éprouvé que `macCancelShortcut`/`macKeyboardShortcut` dans `KeyboardShortcuts.swift`)
+    /// est volontairement conservée : `onMoveCommand` est à re-tester une fois le bug de bêta
+    /// corrigé (`.defaultFocus` remplacé par `initialFocus` le réglerait sans doute aussi bien).
+    /// Rien ne casse d'ici là ni le jour où la bêta sera corrigée : le contournement devient
+    /// simplement inutile.
     ///
     /// Un seul `macMoveCommand` actif à la fois par fenêtre : les raccourcis flèches sont des
     /// équivalents-clavier à l'échelle de la fenêtre, pas des gestes locaux à la vue. Deux vues le

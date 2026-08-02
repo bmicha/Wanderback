@@ -55,12 +55,12 @@ Fichiers impactés :
 
 ### 2. Isolation des APIs tvOS
 
-- `.focusSection()` (`SummaryView`, `RevealView`) : indisponible sur macOS → extension
-  `View.tvFocusSection()` qui ne fait rien hors tvOS (évite de parsemer les vues de
-  `#if`).
-- `.onExitCommand` (`ContentView.gameFlow`) : disponible sur macOS (10.15+) où il
-  correspond à la touche Échap → **conservé tel quel** : Échap quitte la partie,
-  comme le bouton Menu de la télécommande.
+- `.focusSection()` (`SummaryView`, `RevealView`) : disponible sur macOS (13+) comme
+  sur tvOS → **conservé tel quel**, sans wrapper spécifique.
+- `.onExitCommand` (`ContentView.gameFlow`) : **conservé tel quel** pour tvOS (bouton
+  Menu de la télécommande), mais n'est délivré sur macOS que si la vue a le focus
+  clavier → Échap y passe désormais par `macCancelShortcut`, un raccourci fenêtre
+  indépendant du focus.
 - Focus tvOS (cartes réponse) : sur Mac, le focus clavier SwiftUI natif (Tab/flèches)
   reste utilisable mais l'interaction principale est la souris.
 
