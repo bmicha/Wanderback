@@ -30,6 +30,17 @@ struct HomeView: View {
                 playButton
             }
             .macMoveCommand(handleMoveCommand)
+            #if os(macOS)
+            // Constaté empiriquement : Espace n'active pas nativement un bouton focalisé ici
+            // (contrairement à ce que suggérait le brief) — posé explicitement.
+            .background {
+                Button("") { activateFocusedElement() }
+                    .keyboardShortcut(.space, modifiers: [])
+                    .opacity(0)
+                    .frame(width: 0, height: 0)
+                    .accessibilityHidden(true)
+            }
+            #endif
         }
         .initialFocus($focusedElement, .play)
         .task {
@@ -77,6 +88,19 @@ struct HomeView: View {
             if direction == .up {
                 focusedElement = .rounds(selectedRounds)
             }
+        }
+    }
+
+    /// Active l'élément actuellement en surbrillance (Espace) : même effet que cliquer dessus.
+    private func activateFocusedElement() {
+        guard let current = focusedElement else { return }
+        switch current {
+        case .mode(let mode):
+            withAnimation(Theme.focusAnimation) { selectedMode = mode }
+        case .rounds(let count):
+            withAnimation(Theme.focusAnimation) { selectedRounds = count }
+        case .play:
+            onPlay(selectedMode, selectedRounds)
         }
     }
 
