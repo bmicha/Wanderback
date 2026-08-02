@@ -36,6 +36,14 @@ struct HomeView: View {
         }
         .initialFocus($focusedElement, .play)
         .task {
+            #if DEBUG
+            // Dev uniquement : masque les photos personnelles de la mosaïque (capture d'écran
+            // App Store) sans toucher aux statistiques réelles affichées juste en dessous —
+            // contrairement à `-demoMode`, qui remplacerait aussi les compteurs par des valeurs
+            // fictives. `mosaicImages` reste vide et `mosaicCell(index:)` retombe sur son
+            // dégradé `Theme.backgroundTop → Theme.backgroundBottom`.
+            if ProcessInfo.processInfo.arguments.contains("-noMosaic") { return }
+            #endif
             mosaicImages = await PhotoImageLoader.shared.loadRandomImages(
                 from: viewModel.photoLocations,
                 count: 10,

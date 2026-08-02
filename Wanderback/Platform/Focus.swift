@@ -52,10 +52,18 @@ extension View {
     /// **Doit précéder** `.focused(_:equals:)` dans la chaîne de modificateurs : posé après, le
     /// focus AppKit atterrit dans un wrapper distinct (anneau bleu visible) déconnecté du
     /// `@FocusState`, qui reste à `nil` et n'active jamais le style personnalisé.
+    ///
+    /// `focusEffectDisabled()` supprime l'anneau de focus bleu standard d'AppKit, qui sinon se
+    /// dessine par-dessus notre propre surbrillance (fond blanc / bordure / scale pilotés par
+    /// `isFocused`) — deux surbrillances concurrentes sur le même contrôle. Le focus lui-même
+    /// (et donc `@FocusState`) reste intact, seul le rendu système est désactivé. Ne s'applique
+    /// qu'à macOS : sur tvOS, désactiver l'effet de focus casserait les visuels natifs de la
+    /// télécommande.
     @ViewBuilder
     func macFocusable() -> some View {
         #if os(macOS)
         self.focusable()
+            .focusEffectDisabled()
         #else
         self
         #endif
