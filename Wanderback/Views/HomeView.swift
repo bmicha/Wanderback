@@ -29,10 +29,14 @@ struct HomeView: View {
                 statsRow
                 playButton
             }
+            #if os(macOS)
             .macMoveCommand(handleMoveCommand)
+            #endif
             // Constaté empiriquement : Espace n'active pas nativement un bouton focalisé ici
             // (contrairement à ce que suggérait le brief) — posé explicitement.
+            #if os(macOS)
             .macShortcutAction(.space) { activateFocusedElement() }
+            #endif
         }
         .initialFocus($focusedElement, .play)
         .task {
@@ -56,6 +60,7 @@ struct HomeView: View {
 
     /// Ordre des rangées : tuiles de mode → rounds → bouton « C'EST PARTI ».
     /// Appelé uniquement sur macOS (cf. `macMoveCommand`) ; tvOS garde son moteur de focus natif.
+    #if os(macOS)
     private func handleMoveCommand(_ direction: MoveCommandDirection) {
         guard let current = focusedElement else { return }
         switch current {
@@ -90,6 +95,7 @@ struct HomeView: View {
             }
         }
     }
+    #endif
 
     /// Active l'élément actuellement en surbrillance (Espace) : même effet que cliquer dessus.
     private func activateFocusedElement() {

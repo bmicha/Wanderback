@@ -22,6 +22,7 @@ extension View {
     /// équivalents-clavier à l'échelle de la fenêtre, pas des gestes locaux à la vue. Deux vues le
     /// portant simultanément entreraient en conflit à comportement indéfini, et tout futur champ
     /// texte ou vue défilante sur le même écran se verrait voler ses flèches.
+    #if os(macOS)
     @ViewBuilder
     func macMoveCommand(_ action: @escaping (MoveCommandDirection) -> Void) -> some View {
         self
@@ -30,6 +31,12 @@ extension View {
             .macShortcutAction(.upArrow) { action(.up) }
             .macShortcutAction(.downArrow) { action(.down) }
     }
+    #else
+    @ViewBuilder
+    func macMoveCommand(_ action: @escaping (Int) -> Void) -> some View {
+        self
+    }
+    #endif
 
     /// Sur macOS, survoler un contrôle lui donne le focus clavier, pour que la surbrillance
     /// souris et la surbrillance clavier désignent toujours le même élément. No-op sur tvOS.

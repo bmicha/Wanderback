@@ -66,7 +66,9 @@ struct SummaryView: View {
                     .focused($focusedButton, equals: .changeMode)
                     .macFocusOnHover($focusedButton, equals: .changeMode)
                 }
+                #if !os(iOS)
                 .focusSection()
+                #if os(macOS)
                 .macMoveCommand { direction in
                     switch (focusedButton, direction) {
                     case (.replay, .right):
@@ -77,6 +79,8 @@ struct SummaryView: View {
                         break
                     }
                 }
+                #endif
+                #endif
             }
             .padding(.bottom, 70.scaled)
             .tvIgnoresSafeArea()

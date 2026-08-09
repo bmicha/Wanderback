@@ -60,12 +60,16 @@ struct ContentView: View {
                 .transition(.opacity)
             }
         }
+        #if !os(iOS)
         .onExitCommand {
             gameViewModel.quit()
         }
+        #endif
+        #if os(macOS)
         .macCancelShortcut {
             gameViewModel.quit()
         }
+        #endif
     }
 
     /// Dev uniquement : `-screen game|reveal|summary` saute directement à un écran
