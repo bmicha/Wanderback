@@ -133,7 +133,7 @@ struct GradientPillButtonStyle: ButtonStyle {
         let verticalPadding: CGFloat
         let fontSize: CGFloat
 
-        private var isHighlighted: Bool { isFocused || isHovered }
+        private var isHighlighted: Bool { isFocused || isHovered || configuration.isPressed }
 
         var body: some View {
             configuration.label
@@ -178,7 +178,7 @@ struct SecondaryPillButtonStyle: ButtonStyle {
         let verticalPadding: CGFloat
         let fontSize: CGFloat
 
-        private var isHighlighted: Bool { isFocused || isHovered }
+        private var isHighlighted: Bool { isFocused || isHovered || configuration.isPressed }
 
         var body: some View {
             configuration.label

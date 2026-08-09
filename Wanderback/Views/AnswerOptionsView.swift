@@ -71,7 +71,7 @@ private struct AnswerCardButtonStyle: ButtonStyle {
         @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
 
-        private var isHighlighted: Bool { isFocused || isHovered }
+        private var isHighlighted: Bool { isFocused || isHovered || configuration.isPressed }
 
         var body: some View {
             configuration.label
