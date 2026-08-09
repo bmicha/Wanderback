@@ -70,6 +70,22 @@ struct ContentView: View {
             gameViewModel.quit()
         }
         #endif
+        #if os(iOS)
+        // Ni bouton Menu ni touche Échap sur iPad : croix discrète pour quitter la partie.
+        .overlay(alignment: .topLeading) {
+            Button {
+                gameViewModel.quit()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 20.scaled, weight: .bold))
+                    .foregroundStyle(Theme.textSecondary)
+                    .padding(16.scaled)
+                    .background(Theme.answerSurface, in: Circle())
+                    .overlay(Circle().strokeBorder(Theme.answerBorder, lineWidth: 1))
+            }
+            .padding(24.scaled)
+        }
+        #endif
     }
 
     /// Dev uniquement : `-screen game|reveal|summary` saute directement à un écran
