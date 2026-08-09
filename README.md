@@ -1,8 +1,8 @@
 # 🗺️ Wanderback
 
-> Jeu de reconnaissance de lieux à partir de tes photos de vacances · Apple TV (tvOS)
+> Jeu de reconnaissance de lieux à partir de tes photos de vacances · Apple TV (tvOS) & Mac (macOS)
 
-Wanderback est une application tvOS qui pioche dans ta bibliothèque iCloud pour te faire deviner où ont été prises tes propres photos de voyage. Inspiré de GeoGuessr, mais avec tes souvenirs personnels.
+Wanderback est une application tvOS et macOS qui pioche dans ta bibliothèque iCloud pour te faire deviner où ont été prises tes propres photos de voyage. Inspiré de GeoGuessr, mais avec tes souvenirs personnels.
 
 ## Concept
 
@@ -15,6 +15,7 @@ Wanderback est une application tvOS qui pioche dans ta bibliothèque iCloud pour
 
 - Apple TV 4K (2e ou 3e génération)
 - tvOS 17.0+
+- ou un Mac sous macOS 26+ (cible WanderbackMac)
 - Bibliothèque iCloud avec au moins **4 destinations distinctes** avec GPS activé
 
 ## Documentation

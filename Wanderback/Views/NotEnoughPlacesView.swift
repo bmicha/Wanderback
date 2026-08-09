@@ -5,50 +5,71 @@ struct NotEnoughPlacesView: View {
     let viewModel: PhotoLibraryViewModel
 
     @State private var showingHelp = false
-    @FocusState private var demoFocused: Bool
+    @FocusState private var focusedButton: NotEnoughPlacesButton?
+
+    /// Deux boutons de cet écran, pour piloter la surbrillance clavier sur macOS.
+    private enum NotEnoughPlacesButton: Hashable {
+        case help
+        case demo
+    }
 
     var body: some View {
         ZStack {
             SceneBackground()
 
-            VStack(spacing: 32) {
+            VStack(spacing: 32.scaled) {
                 badge
 
                 Text("Pas assez de destinations trouvées")
-                    .font(.system(size: 52, weight: .heavy))
+                    .font(.system(size: 52.scaled, weight: .heavy))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
 
                 Text(bodyText)
-                    .font(.system(size: 28))
+                    .font(.system(size: 28.scaled))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 tipCard
 
-                HStack(spacing: 30) {
+                HStack(spacing: 30.scaled) {
                     Button("Voir comment faire") {
                         withAnimation(Theme.focusAnimation) { showingHelp.toggle() }
                     }
                     .buttonStyle(SecondaryPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
+                    .macFocusable()
+                    .focused($focusedButton, equals: .help)
+                    .macFocusOnHover($focusedButton, equals: .help)
 
                     Button {
                         viewModel.startDemoMode()
                     } label: {
-                        HStack(spacing: 12) {
+                        HStack(spacing: 12.scaled) {
                             Text("Mode démo")
                             Image(systemName: "play.fill")
-                                .font(.system(size: 18))
+                                .font(.system(size: 18.scaled))
                         }
                     }
                     .buttonStyle(GradientPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
-                    .focused($demoFocused)
+                    .macFocusable()
+                    .focused($focusedButton, equals: .demo)
+                    .macFocusOnHover($focusedButton, equals: .demo)
                 }
-                .padding(.top, 8)
+                .padding(.top, 8.scaled)
+                .macMoveCommand { direction in
+                    switch (focusedButton, direction) {
+                    case (.demo, .left):
+                        focusedButton = .help
+                    case (.help, .right):
+                        focusedButton = .demo
+                    default:
+                        break
+                    }
+                }
             }
-            .padding(.horizontal, 200)
+            .padding(.horizontal, 200.scaled)
         }
-        .defaultFocus($demoFocused, true)
+        .initialFocus($focusedButton, .demo)
     }
 
     /// Pastille 120 : cercle translucide + point erreur.
@@ -56,13 +77,13 @@ struct NotEnoughPlacesView: View {
         ZStack {
             Circle()
                 .fill(Color.white.opacity(0.07))
-                .frame(width: 120, height: 120)
+                .frame(width: 120.scaled, height: 120.scaled)
             Circle()
                 .fill(Theme.error.opacity(0.3))
-                .frame(width: 52, height: 52)
+                .frame(width: 52.scaled, height: 52.scaled)
             Circle()
                 .fill(Theme.error)
-                .frame(width: 26, height: 26)
+                .frame(width: 26.scaled, height: 26.scaled)
         }
     }
 
@@ -77,12 +98,12 @@ struct NotEnoughPlacesView: View {
 
     private var tipCard: some View {
         Text(showingHelp ? helpText : tipText)
-            .font(.system(size: 24))
+            .font(.system(size: 24.scaled))
             .foregroundStyle(Theme.textSecondary)
             .multilineTextAlignment(.center)
-            .padding(.horizontal, 30)
-            .padding(.vertical, 18)
-            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal, 30.scaled)
+            .padding(.vertical, 18.scaled)
+            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 16.scaled))
     }
 
     private var tipText: String {

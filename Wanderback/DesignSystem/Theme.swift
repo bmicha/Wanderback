@@ -59,6 +59,16 @@ enum Theme {
 
     /// Durée standard des transitions de focus (180 ms)
     static let focusAnimation = Animation.easeOut(duration: 0.18)
+
+    // MARK: - Échelle plateforme
+
+    /// L'UI est calibrée pour un canvas TV 1920×1080 regardé à 3 m ; en fenêtre
+    /// Mac (~1280 pt) typo et espacements sont réduits d'un facteur global.
+    #if os(macOS)
+    static let scale: CGFloat = 0.62
+    #else
+    static let scale: CGFloat = 1.0
+    #endif
 }
 
 extension Color {
@@ -69,6 +79,15 @@ extension Color {
             blue: Double(hex & 0xFF) / 255
         )
     }
+}
+
+extension CGFloat {
+    /// Valeur de design (canvas TV) ramenée à l'échelle de la plateforme.
+    var scaled: CGFloat { self * Theme.scale }
+}
+
+extension Int {
+    var scaled: CGFloat { CGFloat(self) * Theme.scale }
 }
 
 // MARK: - Fond de scène
@@ -105,24 +124,30 @@ struct GradientPillButtonStyle: ButtonStyle {
 
     private struct GradientPillLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let horizontalPadding: CGFloat
         let verticalPadding: CGFloat
         let fontSize: CGFloat
 
+        private var isHighlighted: Bool { isFocused || isHovered }
+
         var body: some View {
             configuration.label
-                .font(.system(size: fontSize, weight: .heavy))
+                .font(.system(size: fontSize.scaled, weight: .heavy))
                 .foregroundStyle(Theme.inkDark)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
+                .padding(.horizontal, horizontalPadding.scaled)
+                .padding(.vertical, verticalPadding.scaled)
                 .background(Theme.signatureGradient, in: Capsule())
                 .shadow(
-                    color: isFocused ? Theme.ctaHalo : Theme.ctaHalo.opacity(0.5),
+                    color: isHighlighted ? Theme.ctaHalo : Theme.ctaHalo.opacity(0.5),
                     radius: 25, y: 20
                 )
-                .scaleEffect(isFocused ? 1.08 : 1.0)
-                .animation(Theme.focusAnimation, value: isFocused)
+                .scaleEffect(isHighlighted ? 1.08 : 1.0)
+                .animation(Theme.focusAnimation, value: isHighlighted)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
@@ -144,27 +169,33 @@ struct SecondaryPillButtonStyle: ButtonStyle {
 
     private struct SecondaryPillLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let horizontalPadding: CGFloat
         let verticalPadding: CGFloat
         let fontSize: CGFloat
 
+        private var isHighlighted: Bool { isFocused || isHovered }
+
         var body: some View {
             configuration.label
-                .font(.system(size: fontSize, weight: .bold))
-                .foregroundStyle(isFocused ? Theme.inkDark : .white)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
+                .font(.system(size: fontSize.scaled, weight: .bold))
+                .foregroundStyle(isHighlighted ? Theme.inkDark : .white)
+                .padding(.horizontal, horizontalPadding.scaled)
+                .padding(.vertical, verticalPadding.scaled)
                 .background(
-                    isFocused ? Color.white : Color.white.opacity(0.1),
+                    isHighlighted ? Color.white : Color.white.opacity(0.1),
                     in: Capsule()
                 )
                 .overlay(
-                    Capsule().strokeBorder(Color.white.opacity(isFocused ? 0 : 0.2), lineWidth: 3)
+                    Capsule().strokeBorder(Color.white.opacity(isHighlighted ? 0 : 0.2), lineWidth: 3)
                 )
-                .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
-                .scaleEffect(isFocused ? 1.08 : 1.0)
-                .animation(Theme.focusAnimation, value: isFocused)
+                .shadow(color: isHighlighted ? Theme.focusShadow : .clear, radius: 25, y: 20)
+                .scaleEffect(isHighlighted ? 1.08 : 1.0)
+                .animation(Theme.focusAnimation, value: isHighlighted)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
@@ -178,7 +209,7 @@ struct GradientText: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: size, weight: weight))
+            .font(.system(size: size.scaled, weight: weight))
             .tracking(tracking)
             .foregroundStyle(Theme.signatureGradient)
     }

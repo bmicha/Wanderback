@@ -8,27 +8,53 @@ struct AnswerOptionsView: View {
     @FocusState private var focusedOption: UUID?
 
     var body: some View {
-        HStack(spacing: 24) {
-            ForEach(options) { option in
+        HStack(spacing: 24.scaled) {
+            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
                 Button {
                     onSelect(option)
                 } label: {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 6.scaled) {
                         Text(option.displayName)
-                            .font(.system(size: 28, weight: .heavy))
+                            .font(.system(size: 28.scaled, weight: .heavy))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         Text(option.country)
-                            .font(.system(size: 21))
+                            .font(.system(size: 21.scaled))
                             .opacity(0.6)
                             .lineLimit(1)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 28)
-                    .padding(.vertical, 24)
+                    .padding(.horizontal, 28.scaled)
+                    .padding(.vertical, 24.scaled)
                 }
                 .buttonStyle(AnswerCardButtonStyle())
+                .macFocusable()
                 .focused($focusedOption, equals: option.id)
+                .macFocusOnHover($focusedOption, equals: option.id)
+                .macKeyboardShortcut(Character("\(index + 1)"))
+            }
+        }
+        .macMoveCommand { direction in
+            guard let currentIndex = options.firstIndex(where: { $0.id == focusedOption }) else { return }
+            switch direction {
+            case .left where currentIndex > 0:
+                focusedOption = options[currentIndex - 1].id
+            case .right where currentIndex < options.count - 1:
+                focusedOption = options[currentIndex + 1].id
+            default:
+                break
+            }
+        }
+        #if os(macOS)
+        // Focus initial sur la première carte, refait à chaque nouveau round
+        // (les options changent mais la vue garde son identité structurelle).
+        .onChange(of: options.map(\.id), initial: true) { _, _ in
+            focusedOption = options.first?.id
+        }
+        #endif
+        .macShortcutAction(.return) {
+            if let option = options.first(where: { $0.id == focusedOption }) {
+                onSelect(option)
             }
         }
     }
@@ -42,27 +68,33 @@ private struct AnswerCardButtonStyle: ButtonStyle {
 
     private struct AnswerCardLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
+
+        private var isHighlighted: Bool { isFocused || isHovered }
 
         var body: some View {
             configuration.label
-                .foregroundStyle(isFocused ? Theme.inkDark : .white)
+                .foregroundStyle(isHighlighted ? Theme.inkDark : .white)
                 .background {
-                    if isFocused {
-                        RoundedRectangle(cornerRadius: 20).fill(Color.white)
+                    if isHighlighted {
+                        RoundedRectangle(cornerRadius: 20.scaled).fill(Color.white)
                     } else {
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: 20.scaled)
                             .fill(Theme.answerSurface)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20.scaled))
                     }
                 }
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(isFocused ? Color.clear : Theme.answerBorder, lineWidth: 3)
+                    RoundedRectangle(cornerRadius: 20.scaled)
+                        .strokeBorder(isHighlighted ? Color.clear : Theme.answerBorder, lineWidth: 3)
                 )
-                .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
-                .scaleEffect(isFocused ? 1.07 : 1.0)
-                .animation(Theme.focusAnimation, value: isFocused)
+                .shadow(color: isHighlighted ? Theme.focusShadow : .clear, radius: 25, y: 20)
+                .scaleEffect(isHighlighted ? 1.07 : 1.0)
+                .animation(Theme.focusAnimation, value: isHighlighted)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }

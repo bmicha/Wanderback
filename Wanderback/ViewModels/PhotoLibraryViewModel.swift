@@ -92,19 +92,26 @@ class PhotoLibraryViewModel {
     }
 
     func requestAccessAndLoadPhotos(modelContext: ModelContext) async {
+        #if DEBUG
         // Lancement direct en mode démo (dev / démonstration sans bibliothèque photo)
         if ProcessInfo.processInfo.arguments.contains("-demoMode") {
             startDemoMode()
             return
         }
 
-        #if DEBUG
         // Dev uniquement : fige l'écran de chargement pour vérification visuelle
         if let flagIndex = ProcessInfo.processInfo.arguments.firstIndex(of: "-screen"),
            ProcessInfo.processInfo.arguments.dropFirst(flagIndex + 1).first == "loading" {
             totalPhotoCount = 1247
             photoLocations = DemoData.clusters.flatMap(\.photos)
             currentStep = .geocoding(current: 14, total: 23)
+            return
+        }
+
+        // Dev uniquement : force l'écran "pas assez de destinations" pour vérification
+        // visuelle — cet écran n'apparaît que sous 4 lieux distincts dans la vraie bibliothèque.
+        if ProcessInfo.processInfo.arguments.contains("-notEnoughPlaces") {
+            notEnoughPhotos = true
             return
         }
         #endif
@@ -122,7 +129,11 @@ class PhotoLibraryViewModel {
         case .authorized, .limited:
             break
         case .denied, .restricted:
+            #if os(macOS)
+            errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages Système > Confidentialité et sécurité > Photos."
+            #else
             errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages > Confidentialité > Photos."
+            #endif
             return
         case .notDetermined:
             return

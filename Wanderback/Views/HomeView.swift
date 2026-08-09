@@ -6,7 +6,7 @@ struct HomeView: View {
 
     @State private var selectedMode: GameMode = .souvenir
     @State private var selectedRounds: Int = 10
-    @State private var mosaicImages: [UIImage] = []
+    @State private var mosaicImages: [PlatformImage] = []
     @FocusState private var focusedElement: HomeElement?
 
     private let roundOptions = [5, 10, 20]
@@ -22,21 +22,91 @@ struct HomeView: View {
             SceneBackground()
             mosaicBackground
 
-            VStack(spacing: 44) {
+            VStack(spacing: 44.scaled) {
                 header
                 modeSelection
                 roundsSelection
                 statsRow
                 playButton
             }
+            .macMoveCommand(handleMoveCommand)
+            // Constaté empiriquement : Espace n'active pas nativement un bouton focalisé ici
+            // (contrairement à ce que suggérait le brief) — posé explicitement.
+            .macShortcutAction(.space) { activateFocusedElement() }
         }
-        .defaultFocus($focusedElement, .play)
+        .initialFocus($focusedElement, .play)
         .task {
+            #if DEBUG
+            // Dev uniquement : masque les photos personnelles de la mosaïque (capture d'écran
+            // App Store) sans toucher aux statistiques réelles affichées juste en dessous —
+            // contrairement à `-demoMode`, qui remplacerait aussi les compteurs par des valeurs
+            // fictives. `mosaicImages` reste vide et `mosaicCell(index:)` retombe sur son
+            // dégradé `Theme.backgroundTop → Theme.backgroundBottom`.
+            if ProcessInfo.processInfo.arguments.contains("-noMosaic") { return }
+            #endif
             mosaicImages = await PhotoImageLoader.shared.loadRandomImages(
                 from: viewModel.photoLocations,
                 count: 10,
                 targetSize: CGSize(width: 500, height: 400)
             )
+        }
+    }
+
+    // MARK: - Navigation clavier macOS
+
+    /// Ordre des rangées : tuiles de mode → rounds → bouton « C'EST PARTI ».
+    /// Appelé uniquement sur macOS (cf. `macMoveCommand`) ; tvOS garde son moteur de focus natif.
+    private func handleMoveCommand(_ direction: MoveCommandDirection) {
+        guard let current = focusedElement else { return }
+        switch current {
+        case .mode(let mode):
+            switch direction {
+            case .left, .right:
+                let modes = GameMode.allCases
+                guard let index = modes.firstIndex(of: mode) else { return }
+                let newIndex = direction == .left ? index - 1 : index + 1
+                if modes.indices.contains(newIndex) { focusedElement = .mode(modes[newIndex]) }
+            case .down:
+                focusedElement = .rounds(selectedRounds)
+            default:
+                break
+            }
+        case .rounds(let count):
+            switch direction {
+            case .left, .right:
+                guard let index = roundOptions.firstIndex(of: count) else { return }
+                let newIndex = direction == .left ? index - 1 : index + 1
+                if roundOptions.indices.contains(newIndex) { focusedElement = .rounds(roundOptions[newIndex]) }
+            case .up:
+                focusedElement = .mode(selectedMode)
+            case .down:
+                focusedElement = .play
+            default:
+                break
+            }
+        case .play:
+            if direction == .up {
+                focusedElement = .rounds(selectedRounds)
+            }
+        }
+    }
+
+    /// Active l'élément actuellement en surbrillance (Espace) : même effet que cliquer dessus.
+    private func activateFocusedElement() {
+        guard let current = focusedElement else { return }
+        activate(current)
+    }
+
+    /// Ce que fait un élément de l'accueil quand on l'active — bouton de tuile cliqué ou
+    /// handler Espace : une seule définition, pour que les deux chemins restent identiques.
+    private func activate(_ element: HomeElement) {
+        switch element {
+        case .mode(let mode):
+            withAnimation(Theme.focusAnimation) { selectedMode = mode }
+        case .rounds(let count):
+            withAnimation(Theme.focusAnimation) { selectedRounds = count }
+        case .play:
+            onPlay(selectedMode, selectedRounds)
         }
     }
 
@@ -80,7 +150,7 @@ struct HomeView: View {
     @ViewBuilder
     private func mosaicCell(index: Int) -> some View {
         if index < mosaicImages.count {
-            Image(uiImage: mosaicImages[index])
+            Image(platformImage: mosaicImages[index])
                 .resizable()
                 .aspectRatio(contentMode: .fill)
         } else {
@@ -95,10 +165,10 @@ struct HomeView: View {
     // MARK: - Header
 
     private var header: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 14.scaled) {
             GradientText(text: "WANDERBACK", size: 84, tracking: -2)
             Text("Le quiz de VOS voyages")
-                .font(.system(size: 27))
+                .font(.system(size: 27.scaled))
                 .foregroundStyle(Theme.textSecondary)
         }
     }
@@ -106,57 +176,61 @@ struct HomeView: View {
     // MARK: - Tuiles mode
 
     private var modeSelection: some View {
-        HStack(spacing: 34) {
+        HStack(spacing: 34.scaled) {
             ForEach(GameMode.allCases) { mode in
                 Button {
-                    withAnimation(Theme.focusAnimation) { selectedMode = mode }
+                    activate(.mode(mode))
                 } label: {
                     modeTileLabel(mode)
                 }
                 .buttonStyle(ModeTileButtonStyle(isSelected: selectedMode == mode, mode: mode))
+                .macFocusable()
                 .focused($focusedElement, equals: .mode(mode))
+                .macFocusOnHover($focusedElement, equals: .mode(mode))
             }
         }
     }
 
     private func modeTileLabel(_ mode: GameMode) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16.scaled) {
             Image(systemName: mode.icon)
-                .font(.system(size: 24))
+                .font(.system(size: 24.scaled))
                 .foregroundStyle(.white)
-                .frame(width: 52, height: 52)
+                .frame(width: 52.scaled, height: 52.scaled)
                 .background(Color.white.opacity(0.25), in: Circle())
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 6.scaled) {
                 Text(mode.title)
-                    .font(.system(size: 34, weight: .heavy))
+                    .font(.system(size: 34.scaled, weight: .heavy))
                 Text(mode.subtitle)
-                    .font(.system(size: 22))
+                    .font(.system(size: 22.scaled))
                     .foregroundStyle(.white.opacity(0.75))
             }
         }
         .foregroundStyle(.white)
-        .frame(width: 500 - 2 * 34, alignment: .leading)
-        .padding(34)
+        .frame(width: (500 - 2 * 34).scaled, alignment: .leading)
+        .padding(34.scaled)
     }
 
     // MARK: - Rounds
 
     private var roundsSelection: some View {
-        HStack(spacing: 28) {
+        HStack(spacing: 28.scaled) {
             Text("Rounds")
-                .font(.system(size: 24))
+                .font(.system(size: 24.scaled))
                 .foregroundStyle(Theme.textSecondary)
 
             ForEach(roundOptions, id: \.self) { count in
                 Button {
-                    withAnimation(Theme.focusAnimation) { selectedRounds = count }
+                    activate(.rounds(count))
                 } label: {
                     Text("\(count)")
-                        .font(.system(size: 32, weight: .heavy))
+                        .font(.system(size: 32.scaled, weight: .heavy))
                 }
                 .buttonStyle(RoundCircleButtonStyle(isSelected: selectedRounds == count))
+                .macFocusable()
                 .focused($focusedElement, equals: .rounds(count))
+                .macFocusOnHover($focusedElement, equals: .rounds(count))
             }
         }
     }
@@ -164,24 +238,24 @@ struct HomeView: View {
     // MARK: - Stats
 
     private var statsRow: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 52) {
+        VStack(spacing: 10.scaled) {
+            HStack(spacing: 52.scaled) {
                 Text("\(viewModel.photoLocations.count) photos GPS")
                 Text("\(viewModel.geocodedClusters.count) lieux")
                 Text("\(viewModel.countryCount) pays")
             }
-            .font(.system(size: 22))
+            .font(.system(size: 22.scaled))
             .foregroundStyle(Theme.textTertiary)
 
             // Le geocoding continue derrière l'accueil : le compteur de lieux grossit tout seul
             if let progress = viewModel.backgroundGeocodingProgress {
-                HStack(spacing: 10) {
+                HStack(spacing: 10.scaled) {
                     ProgressView()
                         .controlSize(.small)
                         .tint(Theme.textTertiary)
                     Text("Identification des lieux en cours… \(progress.done)/\(progress.total)")
                 }
-                .font(.system(size: 19))
+                .font(.system(size: 19.scaled))
                 .foregroundStyle(Theme.textTertiary)
             }
         }
@@ -191,17 +265,20 @@ struct HomeView: View {
 
     private var playButton: some View {
         Button {
-            onPlay(selectedMode, selectedRounds)
+            activate(.play)
         } label: {
-            HStack(spacing: 16) {
+            HStack(spacing: 16.scaled) {
                 Text("C'EST PARTI")
                     .tracking(2)
                 Image(systemName: "play.fill")
-                    .font(.system(size: 24))
+                    .font(.system(size: 24.scaled))
             }
         }
         .buttonStyle(GradientPillButtonStyle())
+        .macFocusable()
         .focused($focusedElement, equals: .play)
+        .macFocusOnHover($focusedElement, equals: .play)
+        .macDefaultActionShortcut()
     }
 }
 
@@ -218,28 +295,34 @@ private struct ModeTileButtonStyle: ButtonStyle {
 
     private struct ModeTileLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let isSelected: Bool
         let mode: GameMode
+
+        private var isHighlighted: Bool { isFocused || isHovered }
 
         var body: some View {
             configuration.label
                 .background(
                     mode == .souvenir ? Theme.souvenirTileGradient : Theme.challengeTileGradient,
-                    in: RoundedRectangle(cornerRadius: 28)
+                    in: RoundedRectangle(cornerRadius: 28.scaled)
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 28)
+                    RoundedRectangle(cornerRadius: 28.scaled)
                         .strokeBorder(
-                            Color.white.opacity(isSelected ? 1 : (isFocused ? 0.5 : 0)),
+                            Color.white.opacity(isSelected ? 1 : (isHighlighted ? 0.5 : 0)),
                             lineWidth: 4
                         )
                 )
-                .opacity(isSelected || isFocused ? 1 : 0.65)
+                .opacity(isSelected || isHighlighted ? 1 : 0.65)
                 .shadow(color: Theme.tileShadow, radius: 30, y: 24)
-                .scaleEffect(isFocused ? 1.08 : (isSelected ? 1.04 : 1.0))
-                .animation(Theme.focusAnimation, value: isFocused)
+                .scaleEffect(isHighlighted ? 1.08 : (isSelected ? 1.04 : 1.0))
+                .animation(Theme.focusAnimation, value: isHighlighted)
                 .animation(Theme.focusAnimation, value: isSelected)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
@@ -254,23 +337,28 @@ private struct RoundCircleButtonStyle: ButtonStyle {
 
     private struct RoundCircleLabel: View {
         @Environment(\.isFocused) private var isFocused
+        @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
         let isSelected: Bool
 
         var body: some View {
-            let highlighted = isSelected || isFocused
+            let highlighted = isSelected || isFocused || isHovered
             configuration.label
                 .foregroundStyle(highlighted ? Theme.inkDark : .white)
-                .frame(width: 96, height: 96)
+                .frame(width: 96.scaled, height: 96.scaled)
                 .background(
                     highlighted ? Color.white : Color.white.opacity(0.08),
                     in: Circle()
                 )
                 .opacity(highlighted ? 1 : 0.6)
-                .shadow(color: isFocused ? Theme.focusShadow : .clear, radius: 25, y: 20)
-                .scaleEffect(isFocused ? 1.1 : 1.0)
+                .shadow(color: (isFocused || isHovered) ? Theme.focusShadow : .clear, radius: 25, y: 20)
+                .scaleEffect((isFocused || isHovered) ? 1.1 : 1.0)
                 .animation(Theme.focusAnimation, value: isFocused)
                 .animation(Theme.focusAnimation, value: isSelected)
+                .animation(Theme.focusAnimation, value: isHovered)
+                #if os(macOS)
+                .onHover { isHovered = $0 }
+                #endif
         }
     }
 }
