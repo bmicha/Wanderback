@@ -100,10 +100,12 @@ lancement visuel. Pas de refonte du design.
 
 ### 5. Icône iOS
 
-Réutilisation du composite 1024×1024 déjà généré pour l'icône macOS (aplatissement
-des 3 couches parallax). Sur iOS, un jeu `AppIcon` single-size 1024 suffit — pas de
-grille système ni de déclinaisons de tailles. Ajout dans le même asset catalog,
-assigné à la cible iPad.
+Composite 1024×1024 régénéré depuis les 3 couches parallax (même technique que
+l'icône macOS), mais **carré et sans canal alpha** : les PNG de l'icône Mac ont des
+coins arrondis et de la transparence, interdits sur iOS (le système applique son
+propre masque ; un canal alpha provoque le rejet ITMS-90717 à l'upload). Un jeu
+`AppIcon-iOS` single-size 1024 suffit — pas de déclinaisons de tailles. Ajout dans
+le même asset catalog, assigné à la cible iPad.
 
 ### 6. SwiftData / persistance
 
