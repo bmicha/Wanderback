@@ -20,22 +20,35 @@ try FileManager.default.createDirectory(at: out, withIntermediateDirectories: tr
 
 // iOS applique son propre masque d'angles : le composite doit être carré et
 // sans canal alpha (ITMS-90717 sinon).
-let side: CGFloat = 1024
-let rep = NSBitmapImageRep(
-    bitmapDataPlanes: nil, pixelsWide: Int(side), pixelsHigh: Int(side),
-    bitsPerSample: 8, samplesPerPixel: 3, hasAlpha: false, isPlanar: false,
-    colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-rep.size = NSSize(width: side, height: side)
+let side = 1024
+let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue)
+guard let ctx = CGContext(
+    data: nil,
+    width: side, height: side,
+    bitsPerComponent: 8, bytesPerRow: 0,
+    space: colorSpace, bitmapInfo: bitmapInfo.rawValue
+) else {
+    fatalError("Impossible de créer un contexte CGContext avec RGBX opaque")
+}
+
 NSGraphicsContext.saveGraphicsState()
-NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
 for layer in layers {
-    let scale = max(side / layer.size.width, side / layer.size.height)
+    let scale = max(CGFloat(side) / layer.size.width, CGFloat(side) / layer.size.height)
     let w = layer.size.width * scale
     let h = layer.size.height * scale
-    layer.draw(in: NSRect(x: (side - w) / 2, y: (side - h) / 2, width: w, height: h),
+    layer.draw(in: NSRect(x: (CGFloat(side) - w) / 2, y: (CGFloat(side) - h) / 2, width: w, height: h),
                from: .zero, operation: .sourceOver, fraction: 1)
 }
 NSGraphicsContext.restoreGraphicsState()
-try rep.representation(using: .png, properties: [:])!
-    .write(to: out.appendingPathComponent("icon_1024.png"))
+
+guard let cgImage = ctx.makeImage() else {
+    fatalError("Impossible de créer une image à partir du contexte")
+}
+let rep = NSBitmapImageRep(cgImage: cgImage)
+guard let pngData = rep.representation(using: .png, properties: [:]) else {
+    fatalError("Impossible de générer le PNG")
+}
+try pngData.write(to: out.appendingPathComponent("icon_1024.png"))
 print("✓ icon_1024.png (1024px, sans alpha)")
