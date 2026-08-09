@@ -63,9 +63,12 @@ enum Theme {
     // MARK: - Échelle plateforme
 
     /// L'UI est calibrée pour un canvas TV 1920×1080 regardé à 3 m ; en fenêtre
-    /// Mac (~1280 pt) typo et espacements sont réduits d'un facteur global.
+    /// Mac (~1280 pt) et sur iPad (~1200-1400 pt) typo et espacements sont
+    /// réduits d'un facteur global.
     #if os(macOS)
     static let scale: CGFloat = 0.62
+    #elseif os(iOS)
+    static let scale: CGFloat = 0.7
     #else
     static let scale: CGFloat = 1.0
     #endif
