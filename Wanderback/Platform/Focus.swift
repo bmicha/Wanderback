@@ -31,11 +31,6 @@ extension View {
             .macShortcutAction(.upArrow) { action(.up) }
             .macShortcutAction(.downArrow) { action(.down) }
     }
-    #else
-    @ViewBuilder
-    func macMoveCommand(_ action: @escaping (Int) -> Void) -> some View {
-        self
-    }
     #endif
 
     /// Sur macOS, survoler un contrôle lui donne le focus clavier, pour que la surbrillance

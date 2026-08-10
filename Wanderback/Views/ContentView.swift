@@ -83,6 +83,7 @@ struct ContentView: View {
                     .background(Theme.answerSurface, in: Circle())
                     .overlay(Circle().strokeBorder(Theme.answerBorder, lineWidth: 1))
             }
+            .accessibilityLabel("Quitter la partie")
             .padding(24.scaled)
         }
         #endif

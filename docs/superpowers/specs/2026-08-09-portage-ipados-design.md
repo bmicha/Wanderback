@@ -1,7 +1,7 @@
 # Portage iPadOS de Wanderback — Design
 
 **Date** : 2026-08-09
-**Statut** : validé (approche et design), en attente de relecture de la spec
+**Statut** : implémenté (build 4 sur TestFlight) ; amendé post-implémentation : orientations ITMS-90474, #if plateforme
 
 ## Objectif
 
@@ -12,7 +12,7 @@ avec la même procédure archive → altool que pour tvOS et macOS.
 ## Cadrage validé
 
 - **iPad uniquement** (pas d'iPhone) — `TARGETED_DEVICE_FAMILY = 2`.
-- **Paysage uniquement** — tous les écrans sont conçus pour un canvas 16:9 paysage.
+- **Paysage uniquement** — tous les écrans sont conçus pour un canvas 16:9 paysage (amendement : la validation App Store — ITMS-90474 — exige les 4 orientations dans l'Info.plist pour le multitâche iPad ; elles sont déclarées, et le paysage est verrouillé à l'exécution par `OrientationLockDelegate` via `@UIApplicationDelegateAdaptor`, plein écran uniquement).
 - **Fenêtrage libre iPadOS 26** — pas de `UIRequiresFullScreen`, l'app est
   redimensionnable comme sur Mac.
 - **iPadOS 26.0 minimum** — aligné sur tvOS 26.2 et macOS 26.0.
@@ -44,8 +44,7 @@ fraîchement éprouvée, pour un gain limité à de la mutualisation de réglage
 
 - `TARGETED_DEVICE_FAMILY = 2` (iPad seulement).
 - `IPHONEOS_DEPLOYMENT_TARGET = 26.0`.
-- Info.plist : `UISupportedInterfaceOrientations~ipad` limité à
-  `UIInterfaceOrientationLandscapeLeft` / `UIInterfaceOrientationLandscapeRight`.
+- Info.plist : `INFOPLIST_KEY_UISupportedInterfaceOrientations` : les 4 orientations (exigence ITMS-90474), paysage verrouillé à l'exécution — cf. amendement ci-dessus.
 - Pas de `UIRequiresFullScreen` : fenêtrage iPadOS 26 accepté. Le layout s'adapte
   aux tailles variables comme il le fait déjà en fenêtre Mac (1024×640 minimum).
 - `NSPhotoLibraryUsageDescription` : même texte français que le Mac (le jeu pioche
@@ -66,10 +65,10 @@ Aucune nouvelle abstraction nécessaire. Sur iOS :
 - `initialFocus` retombe sur `.defaultFocus` (branche non-macOS) : sans effet
   pratique sur iOS, aucun changement requis.
 - `tvIgnoresSafeArea` est un no-op hors tvOS : la safe area iPad est respectée.
-- `.focusSection()` (SummaryView, RevealView) : disponible sur iOS 26, sans effet
-  sans focus engine — conservé tel quel.
-- `onExitCommand` (ContentView.gameFlow) : jamais délivré sur iPad — remplacé par
-  le bouton « fermer » (cf. composant 4).
+- `.focusSection()` (SummaryView) : exclu d'iOS via `#if !os(iOS)` (l'API n'y est pas
+  disponible).
+- `onExitCommand` (ContentView) : exclu d'iOS via `#if !os(iOS)` — sur iPad, le
+  bouton « fermer » remplace ce raccourci système (cf. composant 4).
 
 ### 3. Échelle (`Theme.scale`)
 
