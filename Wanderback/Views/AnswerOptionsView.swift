@@ -34,6 +34,7 @@ struct AnswerOptionsView: View {
                 .macKeyboardShortcut(Character("\(index + 1)"))
             }
         }
+        #if os(macOS)
         .macMoveCommand { direction in
             guard let currentIndex = options.firstIndex(where: { $0.id == focusedOption }) else { return }
             switch direction {
@@ -45,18 +46,17 @@ struct AnswerOptionsView: View {
                 break
             }
         }
-        #if os(macOS)
         // Focus initial sur la première carte, refait à chaque nouveau round
         // (les options changent mais la vue garde son identité structurelle).
         .onChange(of: options.map(\.id), initial: true) { _, _ in
             focusedOption = options.first?.id
         }
-        #endif
         .macShortcutAction(.return) {
             if let option = options.first(where: { $0.id == focusedOption }) {
                 onSelect(option)
             }
         }
+        #endif
     }
 }
 
@@ -71,7 +71,7 @@ private struct AnswerCardButtonStyle: ButtonStyle {
         @State private var isHovered = false
         let configuration: ButtonStyle.Configuration
 
-        private var isHighlighted: Bool { isFocused || isHovered }
+        private var isHighlighted: Bool { isFocused || isHovered || configuration.isPressed }
 
         var body: some View {
             configuration.label

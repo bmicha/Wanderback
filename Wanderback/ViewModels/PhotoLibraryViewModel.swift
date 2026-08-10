@@ -131,6 +131,8 @@ class PhotoLibraryViewModel {
         case .denied, .restricted:
             #if os(macOS)
             errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages Système > Confidentialité et sécurité > Photos."
+            #elseif os(iOS)
+            errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages > Confidentialité et sécurité > Photos."
             #else
             errorMessage = "Wanderback a besoin d'accéder à vos photos pour fonctionner. Autorisez l'accès dans Réglages > Confidentialité > Photos."
             #endif

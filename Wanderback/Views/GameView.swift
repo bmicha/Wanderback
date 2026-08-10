@@ -84,6 +84,12 @@ struct GameView: View {
     private var topBar: some View {
         HStack {
             GradientText(text: "WANDERBACK", size: 28, tracking: -0.5)
+                // Sur iPad, la croix « fermer » flotte en overlay top-leading
+                // (ContentView) par-dessus cette barre : marge additionnelle
+                // pour éviter qu'elle ne chevauche le "W" du logo.
+                #if os(iOS)
+                .padding(.leading, 44.scaled)
+                #endif
 
             Spacer()
 

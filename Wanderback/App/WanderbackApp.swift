@@ -3,6 +3,10 @@ import SwiftData
 
 @main
 struct WanderbackApp: App {
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(OrientationLockDelegate.self) private var orientationLock
+    #endif
+
     var body: some Scene {
         WindowGroup {
             ContentView()

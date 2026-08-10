@@ -56,6 +56,7 @@ struct NotEnoughPlacesView: View {
                     .macFocusOnHover($focusedButton, equals: .demo)
                 }
                 .padding(.top, 8.scaled)
+                #if os(macOS)
                 .macMoveCommand { direction in
                     switch (focusedButton, direction) {
                     case (.demo, .left):
@@ -66,6 +67,7 @@ struct NotEnoughPlacesView: View {
                         break
                     }
                 }
+                #endif
             }
             .padding(.horizontal, 200.scaled)
         }
