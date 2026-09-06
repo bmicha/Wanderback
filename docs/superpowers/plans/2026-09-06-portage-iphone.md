@@ -1123,6 +1123,12 @@ done
 
 Regarder les 18 captures. Ajuster `Theme.scale` (0,58 est une valeur de départ) et, si besoin, les espacements des tâches 4 à 8. Toute valeur retenue qui s'écarte de la spec est reportée dans la spec à l'étape 4.
 
+Trois points relevés pendant les tâches précédentes, à trancher à l'œil ici :
+
+- **`GameView`, marge droite** : sur iPhone SE, « 0 pts » frôle le bord droit — la marge vaut `24.scaled`, soit 14 pt réels. Lisible mais serré ; 28 ou 32 unités seraient plus confortables.
+- **`HomeView`, titre** : sur iPhone SE, « WANDERBACK » occupe ~330 pt sur 375, soit ~22 pt de marge de chaque côté. Non coupé, mais c'est l'élément le plus serré de l'écran.
+- **`LoadingView`, commentaire devenu inexact** : `/// Barre 900×12, pilule, remplissage dégradé signature` (ligne 56) ne vaut plus sur iPhone, où la largeur est fluide. Le corriger — le repo tient à des commentaires justes.
+
 - [ ] **Étape 2 : non-régression sur l'appareil réel**
 
 Brancher l'iPhone, l'appairer, relever son UDID :
