@@ -6,7 +6,7 @@ Wanderback est une application tvOS, macOS et iOS (iPhone et iPad) qui pioche da
 
 ## Concept
 
-- La photo d'un de tes voyages s'affiche en plein écran sur la TV
+- La photo d'un de tes voyages s'affiche en plein écran
 - Tu choisis parmi 4 lieux proposés (issus de ta propre bibliothèque)
 - Deux modes : **Souvenir** (ambiance nostalgie, révélation cinématique) et **Challenge** (chrono + score)
 - 100% local — aucune donnée ne quitte l'appareil
@@ -47,8 +47,6 @@ wanderback/
 │   ├── Views/                  # HomeView, GameView, RevealView...
 │   ├── Services/               # PhotoIndexer, GeocoderService, QuestionGenerator
 │   └── Persistence/            # LocationCache (SwiftData)
-├── WanderbackTests/
-├── WanderbackUITests/
 └── docs/
 ```
 

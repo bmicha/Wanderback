@@ -92,10 +92,11 @@ struct GameView: View {
                 GradientText(text: "WANDERBACK", size: 28, tracking: -0.5)
                     // Sur iPad, la croix « fermer » flotte en overlay top-leading
                     // (ContentView) par-dessus cette barre : marge additionnelle
-                    // pour éviter qu'elle ne chevauche le "W" du logo. Cette
-                    // branche n'est jamais atteinte sur iPhone (logo absent) ni
-                    // sur tvOS/macOS (pas de croix), donc le `#if os(iOS)` ne
-                    // vise ici que l'iPad.
+                    // pour éviter qu'elle ne chevauche le "W" du logo. Ce `#if
+                    // os(iOS)` n'existe tout simplement pas dans les builds
+                    // tvOS/macOS (ce n'est pas une histoire de croix absente
+                    // là-bas) ; sur iOS, il ne s'applique qu'à l'iPad puisque
+                    // le `if !Device.isPhone` englobant exclut déjà l'iPhone.
                     #if os(iOS)
                     .padding(.leading, 44.scaled)
                     #endif

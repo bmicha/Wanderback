@@ -532,7 +532,19 @@ Remplacer `topBar` par :
     }
 ```
 
-Le bloc `#if os(iOS) .padding(.leading, 44.scaled) #endif` posé sur le logo n'a plus d'objet **sur iPhone**, puisque le logo y disparaît — mais il en garde un sur iPad, où le logo reste affiché et où la croix « fermer » de `ContentView` est également présente : sans cette marge, le logo passerait sous la croix (mesuré à ~14 pt de chevauchement à l'échelle iPad de 0,7). Il ne faut donc pas le supprimer, mais le déplacer dans la branche `!Device.isPhone`, où il devient un simple `.padding(.leading, 44.scaled)` sans `#if` — `Device.isPhone` est déjà faux hors iOS, et sur tvOS/macOS il n'y a pas de croix. Adapter le commentaire, qui parle aujourd'hui d'« iPad » au singulier.
+Le bloc `#if os(iOS) .padding(.leading, 44.scaled) #endif` posé sur le logo n'a plus d'objet **sur iPhone**, puisque le logo y disparaît — mais il en garde un sur iPad, où le logo reste affiché et où la croix « fermer » de `ContentView` est également présente : sans cette marge, le logo passerait sous la croix (mesuré à ~14 pt de chevauchement à l'échelle iPad de 0,7). Il ne faut donc pas le supprimer, mais le déplacer dans la branche `!Device.isPhone`, en gardant le `#if os(iOS)` autour du `.padding`. Adapter le commentaire, qui parle aujourd'hui d'« iPad » au singulier.
+
+**Correction (constatée à la revue finale, ligne ci-dessus initialement erronée)** —
+la formulation d'origine de ce paragraphe disait de faire de ce `.padding(.leading,
+44.scaled)` « un simple `.padding(.leading, 44.scaled)` sans `#if` — `Device.isPhone`
+est déjà faux hors iOS, et sur tvOS/macOS il n'y a pas de croix ». **Ce raisonnement
+est faux** et n'a heureusement pas été suivi tel quel à l'implémentation : la branche
+englobante `if !Device.isPhone` est prise sur tvOS et macOS aussi (`Device.isPhone` y
+vaut faux comme sur iPad), donc retirer le `#if os(iOS)` y appliquerait la marge —
+décalant le logo de 44 pt sur Apple TV et de 27 pt sur Mac (`44 × Theme.scale`), sans
+aucune croix à éviter là-bas. Le `#if os(iOS)` doit rester autour du `.padding`,
+précisément pour borner cette marge à iOS (donc à l'iPad, seule plateforme où la
+branche `!Device.isPhone` et la compilation iOS coïncident).
 
 Vérifier ce point par une capture iPad, pas seulement par le calcul :
 

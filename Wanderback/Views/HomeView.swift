@@ -140,14 +140,17 @@ struct HomeView: View {
             }
             .opacity(0.6)
             .overlay(
+                // Rayons en points bruts : ils doivent couvrir l'écran, pas le canvas
+                // de design — un rayon passé par `.scaled` resterait calibré sur le
+                // canvas TV et ne couvrirait jamais un écran iPhone plus petit.
                 RadialGradient(
                     colors: [
                         Color(hex: 0x232048).opacity(0.88),
                         Color(hex: 0x131226).opacity(0.96)
                     ],
                     center: .center,
-                    startRadius: 200,
-                    endRadius: 1300
+                    startRadius: Device.isPhone ? 60 : 200,
+                    endRadius: Device.isPhone ? 480 : 1300
                 )
             )
         }

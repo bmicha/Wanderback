@@ -140,6 +140,16 @@ static let scale: CGFloat = 1.0
 `static let` évaluée une fois au premier accès : `.scaled` reste une extension
 `CGFloat` sans contexte SwiftUI, et aucun appel existant ne change.
 
+**Amendement (constaté à la revue finale)** : la spec ne mentionnait pas
+`SceneBackground` (fond radial commun à tous les écrans, défini juste après
+`Theme.scale` dans `Theme.swift`), alors que son `endRadius` a bien changé dans ce
+portage. `endRadius: 1400` est un rayon en points **bruts**, calibré sur le canvas
+TV 1920×1080 : sur un iPhone (demi-diagonale ~470 pt) le dégradé ne se termine
+jamais, le fond reste uniformément proche de `backgroundTop`. → `endRadius:
+Device.isPhone ? 520 : 1400`. C'est le même défaut de classe que la vignette de
+`RevealView` (§5 ci-dessous) et que le voile radial de `mosaicBackground` dans
+`HomeView` (§5, sous-section `HomeView`), corrigés de la même façon.
+
 ### 5. Layouts en portrait
 
 Convention de lecture : les changements notés `A → B` sont en **unités du canvas de
@@ -150,9 +160,16 @@ fait 402 ; le SE 3, cas contraignant, en fait 375).
 **`GameView`**
 
 - `topBar` : sur iPhone, le logo « WANDERBACK » est retiré — il ne sert à rien en cours
-  de partie et occupe ~130 pt sur les 393 disponibles. Cela supprime au passage le
-  `#if os(iOS) .padding(.leading, 44)` qui n'existait que pour éviter la croix
-  « fermer ». Libellé de round abrégé en « 3/10 », `spacing` 32 → 18.
+  de partie et occupe ~130 pt sur les 393 disponibles. Libellé de round abrégé en
+  « 3/10 », `spacing` 32 → 18.
+  **Amendement (constaté à la revue finale)** : le `#if os(iOS) .padding(.leading,
+  44)` posé sur le logo n'est **pas** supprimé — il est conservé, à l'intérieur de
+  la branche `if !Device.isPhone`. Cette branche est prise sur iPad (où le logo
+  reste affiché), mais aussi sur tvOS et macOS (`Device.isPhone` y vaut toujours
+  faux) : le `#if os(iOS)` qu'elle contient ne s'y compile simplement pas, tvOS et
+  macOS ne sont donc pas concernés. Sur iPad, la croix « fermer » de `ContentView`
+  flotte en overlay top-leading par-dessus cette barre ; sans cette marge, le logo
+  passerait sous la croix.
   **Amendement (tâche 9, calibrage final)** : marge horizontale `56 → 28` (et non
   24, comme `bottomSection` ci-dessous) — sur iPhone SE, « 0 pts » frôlait le bord
   droit avec 24. Débordement local à `topBar`, corrigé par sa seule marge ; `Theme.scale`
@@ -197,6 +214,17 @@ très au-dessus des 44 pt recommandés par Apple.
   (une tuile pleine largeur avec l'icône empilée gaspille ~40 pt de hauteur), et
   `frame(width: (500 - 2 * 34).scaled)` → `maxWidth: .infinity`.
 - `roundsSelection` et `statsRow` tiennent tels quels (~238 pt) — à confirmer à l'œil.
+  **Amendement (constaté à la revue finale)** : `mosaicBackground` pose sur la
+  mosaïque un voile radial dont `startRadius: 200` / `endRadius: 1300` sont eux
+  aussi des points **bruts**, calibrés sur le canvas TV. Sur iPhone (demi-diagonale
+  ~470 pt) le disque central de 200 pt reste plat et le coin d'écran n'atteint
+  jamais l'opacité visée : le vignettage disparaît, le voile devient quasi
+  uniforme — même défaut de classe que `SceneBackground` (§4) et la vignette de
+  `RevealView` ci-dessus. → `startRadius: Device.isPhone ? 60 : 200`, `endRadius:
+  Device.isPhone ? 480 : 1300`. Défaut resté invisible dans les 18 captures de
+  validation : elles utilisent `-noMosaic`, qui laisse la mosaïque vide et fait
+  retomber les cellules sur un dégradé plat où, sous un voile à 0,88 d'opacité, le
+  rayon n'a aucun effet observable.
 
 **`LoadingView`**
 
