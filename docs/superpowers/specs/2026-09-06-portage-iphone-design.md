@@ -86,8 +86,13 @@ travail, pas dans le facteur d'échelle.
   La clé `UISupportedInterfaceOrientations` existante garde ses 4 orientations : elle
   s'applique à l'iPad, où les 4 sont exigées pour le multitâche (ITMS-90474).
 - Nouveau color set `LaunchBackgroundColor` (`#131226`, le `Theme.backgroundBottom`)
-  dans `Assets.xcassets`, référencé par `INFOPLIST_KEY_UILaunchScreen_UIColorName`,
-  pour que le lancement iPhone ne flashe pas en blanc.
+  dans `Assets.xcassets`, pour que le lancement iPhone ne flashe pas en blanc.
+  **Amendement (constaté à l'implémentation)** : il n'existe pas de build setting
+  `INFOPLIST_KEY_UILaunchScreen_UIColorName` — le mécanisme `INFOPLIST_KEY_*` ne
+  remplit que des clés de premier niveau, or `UILaunchScreen` est un dictionnaire.
+  La couleur passe donc par un Info.plist partiel `Config/WanderbackiOS-Info.plist`
+  (hors du dossier synchronisé `Wanderback/`), désigné par `INFOPLIST_FILE` et
+  fusionné avec les clés que `GENERATE_INFOPLIST_FILE` continue de générer.
   `LaunchScreen.storyboard` est un fichier tvOS (`targetRuntime="AppleTV"`) et ne
   concerne pas cette cible, qui utilise `UILaunchScreen_Generation`.
 - `ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-iOS"` : inchangé. Le jeu single-size

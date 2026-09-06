@@ -109,11 +109,42 @@ Créer `Wanderback/Assets.xcassets/LaunchBackgroundColor.colorset/Contents.json`
 }
 ```
 
-C'est `Theme.backgroundBottom` (`#131226`). Puis ajouter dans les deux configurations iOS :
+C'est `Theme.backgroundBottom` (`#131226`).
+
+Il **n'existe pas** de build setting `INFOPLIST_KEY_UILaunchScreen_UIColorName` : le mécanisme `INFOPLIST_KEY_*` ne remplit que des clés de premier niveau, et `UILaunchScreen` est un dictionnaire. La seule setting de cette famille que Xcode connaît est `INFOPLIST_KEY_UILaunchScreen_Generation` (vérifié dans `CoreBuildSystem.xcspec`). Il faut donc un Info.plist partiel, fusionné avec les clés générées.
+
+Créer `Config/WanderbackiOS-Info.plist` — **hors** du dossier `Wanderback/`, qui est un groupe synchronisé où un `.plist` serait embarqué comme ressource dans les trois cibles :
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackgroundColor</string>
+	</dict>
+</dict>
+</plist>
+```
+
+puis, dans les deux configurations iOS :
 
 ```
-INFOPLIST_KEY_UILaunchScreen_UIColorName = LaunchBackgroundColor;
+INFOPLIST_FILE = "Config/WanderbackiOS-Info.plist";
 ```
+
+`GENERATE_INFOPLIST_FILE = YES` reste actif : Xcode fusionne ce fichier avec les clés qu'il génère. Recette vérifiée sur un build propre — le binaire obtient `UILaunchScreen = { UIColorName = LaunchBackgroundColor }` **et** conserve `UISupportedInterfaceOrientations~iphone` et `NSPhotoLibraryUsageDescription`.
+
+Vérifier après le build :
+
+```bash
+/usr/libexec/PlistBuddy -c "Print :UILaunchScreen" \
+  .build-sim/Build/Products/Debug-iphonesimulator/Wanderback.app/Info.plist
+```
+
+Attendu : `Dict { UIColorName = LaunchBackgroundColor }`, et **non** un dict vide.
 
 - [ ] **Étape 4 : créer l'outil de capture**
 
