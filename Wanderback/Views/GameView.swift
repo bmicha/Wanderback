@@ -35,10 +35,12 @@ struct GameView: View {
             // Photo entière (aspect fit) sur fond constitué de la même image
             // zoomée et floutée — indispensable pour les photos portrait
             GeometryReader { geometry in
-                // Sur iPhone en portrait, la grille de réponses occupe le bas de
-                // l'écran : la photo nette se cale dans l'espace au-dessus d'elle
-                // plutôt qu'au centre de l'écran, sinon une photo verticale descend
-                // derrière les cartes. Le fond flouté, lui, reste plein cadre.
+                // Sur iPhone, la barre de jeu occupe le haut de l'écran et la grille
+                // de réponses le bas : la photo nette se centre dans l'espace libre
+                // entre les deux, et non au milieu de l'écran. Sans la réserve haute,
+                // une photo horizontale — qui n'a jamais atteint les cartes — serait
+                // remontée pour rien. Le fond flouté, lui, reste plein cadre.
+                let topZone = Device.isPhone ? geometry.size.height * 0.14 : 0
                 let answersZone = Device.isPhone ? geometry.size.height * 0.28 : 0
 
                 ZStack {
@@ -54,16 +56,10 @@ struct GameView: View {
                     Image(platformImage: roundImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(
-                            width: geometry.size.width,
-                            height: geometry.size.height - answersZone
-                        )
                         .shadow(color: .black.opacity(0.5), radius: 40)
-                        .frame(
-                            width: geometry.size.width,
-                            height: geometry.size.height,
-                            alignment: .top
-                        )
+                        .padding(.top, topZone)
+                        .padding(.bottom, answersZone)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
