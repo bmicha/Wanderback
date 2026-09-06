@@ -531,7 +531,15 @@ Remplacer `topBar` par :
     }
 ```
 
-Supprimer le bloc `#if os(iOS) .padding(.leading, 44.scaled) #endif` et son commentaire, devenus sans objet.
+Le bloc `#if os(iOS) .padding(.leading, 44.scaled) #endif` posé sur le logo n'a plus d'objet **sur iPhone**, puisque le logo y disparaît — mais il en garde un sur iPad, où le logo reste affiché et où la croix « fermer » de `ContentView` est également présente : sans cette marge, le logo passerait sous la croix (mesuré à ~14 pt de chevauchement à l'échelle iPad de 0,7). Il ne faut donc pas le supprimer, mais le déplacer dans la branche `!Device.isPhone`, où il devient un simple `.padding(.leading, 44.scaled)` sans `#if` — `Device.isPhone` est déjà faux hors iOS, et sur tvOS/macOS il n'y a pas de croix. Adapter le commentaire, qui parle aujourd'hui d'« iPad » au singulier.
+
+Vérifier ce point par une capture iPad, pas seulement par le calcul :
+
+```bash
+DD=/tmp/dd-ipad scripts/shot-ios.sh "iPad Pro 11-inch (M5)" /tmp/t4-ipad.png -demoMode -noMosaic -screen game
+```
+
+Attendu : logo affiché, croix à sa gauche, aucun chevauchement, « Round 1/3 » complet sur une ligne.
 
 - [ ] **Étape 2 : ajuster le scrim**
 
