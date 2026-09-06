@@ -65,10 +65,15 @@ enum Theme {
     /// L'UI est calibrée pour un canvas TV 1920×1080 regardé à 3 m ; en fenêtre
     /// Mac (~1280 pt) et sur iPad (~1200-1400 pt) typo et espacements sont
     /// réduits d'un facteur global.
+    ///
+    /// Sur iPhone, l'homothétie ne tient plus : 393 / 1920 donnerait un titre de
+    /// carte réponse à 6 pt. Un téléphone se regarde d'aussi près qu'un iPad, donc
+    /// sa typo reste dans les mêmes eaux ; ce qui manque, c'est la largeur — traitée
+    /// écran par écran par des layouts fluides, pas par le facteur d'échelle.
     #if os(macOS)
     static let scale: CGFloat = 0.62
     #elseif os(iOS)
-    static let scale: CGFloat = 0.7
+    static let scale: CGFloat = Device.isPhone ? 0.58 : 0.7
     #else
     static let scale: CGFloat = 1.0
     #endif
@@ -102,7 +107,8 @@ struct SceneBackground: View {
             colors: [Theme.backgroundTop, Theme.backgroundBottom],
             center: .init(x: 0.5, y: 0.25),
             startRadius: 0,
-            endRadius: 1400
+            // Rayon en points bruts : il doit couvrir l'écran, pas le canvas de design
+            endRadius: Device.isPhone ? 520 : 1400
         )
         .ignoresSafeArea()
     }
