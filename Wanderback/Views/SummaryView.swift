@@ -42,30 +42,7 @@ struct SummaryView: View {
 
                 statsLine
 
-                HStack(spacing: 30.scaled) {
-                    Button {
-                        gameViewModel.replay()
-                    } label: {
-                        HStack(spacing: 14.scaled) {
-                            Text("Rejouer")
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 20.scaled))
-                        }
-                    }
-                    .buttonStyle(GradientPillButtonStyle(horizontalPadding: 56, verticalPadding: 20, fontSize: 26))
-                    .macFocusable()
-                    .focused($focusedButton, equals: .replay)
-                    .macFocusOnHover($focusedButton, equals: .replay)
-                    .macDefaultActionShortcut()
-
-                    Button("Changer de mode") {
-                        onChangeMode()
-                    }
-                    .buttonStyle(SecondaryPillButtonStyle())
-                    .macFocusable()
-                    .focused($focusedButton, equals: .changeMode)
-                    .macFocusOnHover($focusedButton, equals: .changeMode)
-                }
+                summaryButtons
                 #if !os(iOS)
                 .focusSection()
                 #if os(macOS)
@@ -147,12 +124,71 @@ struct SummaryView: View {
     }
 
     private var statsLine: some View {
-        HStack(spacing: 56.scaled) {
-            Text("\(Text("\(gameViewModel.correctAnswersCount)/\(rounds.count)").bold()) bonnes réponses")
-            Text("\(Text("\(gameViewModel.totalDistanceKm.formatted(.number.grouping(.automatic))) km").bold()) parcourus")
+        let items = [
+            Text("\(Text("\(gameViewModel.correctAnswersCount)/\(rounds.count)").bold()) bonnes réponses"),
+            Text("\(Text("\(gameViewModel.totalDistanceKm.formatted(.number.grouping(.automatic))) km").bold()) parcourus"),
             Text("\(Text("\(gameViewModel.countriesVisitedCount)").bold()) \(gameViewModel.countriesVisitedCount > 1 ? "pays visités" : "pays visité")")
+        ]
+
+        return Group {
+            if Device.isPhone {
+                // ~435 pt cumulés : les trois stats ne tiennent pas sur une rangée
+                VStack(spacing: 8.scaled) {
+                    ForEach(Array(items.enumerated()), id: \.offset) { _, item in item }
+                }
+            } else {
+                HStack(spacing: 56.scaled) {
+                    ForEach(Array(items.enumerated()), id: \.offset) { _, item in item }
+                }
+            }
         }
         .font(.system(size: 25.scaled))
         .foregroundStyle(Theme.textSecondary)
+    }
+
+    // MARK: - Boutons
+
+    private var replayButton: some View {
+        Button {
+            gameViewModel.replay()
+        } label: {
+            HStack(spacing: 14.scaled) {
+                Text("Rejouer")
+                Image(systemName: "play.fill")
+                    .font(.system(size: 20.scaled))
+            }
+        }
+        .buttonStyle(GradientPillButtonStyle(horizontalPadding: 56, verticalPadding: 20, fontSize: 26))
+        .macFocusable()
+        .focused($focusedButton, equals: .replay)
+        .macFocusOnHover($focusedButton, equals: .replay)
+        .macDefaultActionShortcut()
+    }
+
+    private var changeModeButton: some View {
+        Button("Changer de mode") {
+            onChangeMode()
+        }
+        .buttonStyle(SecondaryPillButtonStyle())
+        .macFocusable()
+        .focused($focusedButton, equals: .changeMode)
+        .macFocusOnHover($focusedButton, equals: .changeMode)
+    }
+
+    /// ~352 pt côte à côte, contre 375 pt sur iPhone SE : trop juste une fois
+    /// l'effet d'échelle à l'appui appliqué. Empilés sur téléphone.
+    @ViewBuilder
+    private var summaryButtons: some View {
+        if Device.isPhone {
+            VStack(spacing: 16.scaled) {
+                replayButton
+                changeModeButton
+            }
+        } else {
+            HStack(spacing: 30.scaled) {
+                replayButton
+                changeModeButton
+            }
+        }
     }
 }
