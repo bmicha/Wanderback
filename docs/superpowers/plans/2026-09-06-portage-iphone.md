@@ -157,7 +157,8 @@ Créer `scripts/shot-ios.sh` :
 #
 #   scripts/shot-ios.sh "iPhone 17" /tmp/game.png -demoMode -noMosaic -screen game
 #
-# Écrans atteignables : -screen game | reveal | summary (avec -demoMode).
+# Écrans atteignables : -screen game | reveal | summary (avec -demoMode),
+# plus -screen loading et -notEnoughPlaces (flags de PhotoLibraryViewModel).
 # Sans -screen : l'accueil. -noMosaic masque les photos personnelles du fond.
 set -euo pipefail
 
@@ -1070,19 +1071,23 @@ Dans `ContentView.errorView`, dernière ligne du `Text(message)` :
 
 - [ ] **Étape 5 : build et captures**
 
-L'écran de chargement passe vite ; pour le capturer, lancer sans `-demoMode` sur un simulateur dont la photothèque est vide : l'app reste sur `LoadingView` puis bascule sur `NotEnoughPlacesView`, ce qui donne les deux écrans.
+Ces deux écrans ont chacun leur propre flag de debug, dans `PhotoLibraryViewModel` : `-screen loading` fige l'écran de chargement avec des compteurs factices, et `-notEnoughPlaces` force l'écran « pas assez de destinations ». C'est la méthode fiable.
+
+Ne pas passer par une photothèque vide : les simulateurs embarquent 6 photos d'exemple, qui se regroupent en 5 lieux — au-dessus du seuil de 4, donc l'app démarre normalement.
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
 xcodebuild -project Wanderback.xcodeproj -scheme Wanderback \
   -destination 'generic/platform=tvOS' -derivedDataPath .build-sim build 2>&1 | tail -1
-scripts/shot-ios.sh "iPhone 17" /tmp/t8-vide.png
-scripts/shot-ios.sh "iPhone SE (3rd generation)" /tmp/t8-vide-se.png
+scripts/shot-ios.sh "iPhone 17" /tmp/t8-chargement.png -screen loading
+scripts/shot-ios.sh "iPhone 17" /tmp/t8-pas-assez.png -notEnoughPlaces
+scripts/shot-ios.sh "iPhone SE (3rd generation)" /tmp/t8-chargement-se.png -screen loading
+scripts/shot-ios.sh "iPhone SE (3rd generation)" /tmp/t8-pas-assez-se.png -notEnoughPlaces
 ```
 
-Attendu : la barre de progression tient dans l'écran avec des marges ; le texte de « Pas assez de destinations » occupe la largeur au lieu d'être compressé en colonne étroite ; les deux boutons sont empilés.
+Attendu : la barre de progression tient dans l'écran avec des marges et garde 12 unités de hauteur ; le texte de « Pas assez de destinations » occupe la largeur au lieu d'être compressé en colonne étroite ; les deux boutons sont empilés.
 
-Le simulateur demandera l'autorisation d'accès aux photos : la capture montrera peut-être l'alerte système. C'est acceptable pour cette validation.
+Si l'alerte système d'autorisation Photos apparaît sur une capture, c'est acceptable — le dire dans le rapport.
 
 - [ ] **Étape 6 : commit**
 
@@ -1111,10 +1116,12 @@ for sim in "iPhone 17" "iPhone SE (3rd generation)" "iPhone 17 Pro Max"; do
   scripts/shot-ios.sh "$sim" "/tmp/final-$tag-jeu.png"     -demoMode -noMosaic -screen game
   scripts/shot-ios.sh "$sim" "/tmp/final-$tag-reveal.png"  -demoMode -noMosaic -screen reveal
   scripts/shot-ios.sh "$sim" "/tmp/final-$tag-resume.png"  -demoMode -noMosaic -screen summary
+  scripts/shot-ios.sh "$sim" "/tmp/final-$tag-chargement.png" -screen loading
+  scripts/shot-ios.sh "$sim" "/tmp/final-$tag-pas-assez.png"  -notEnoughPlaces
 done
 ```
 
-Regarder les 12 captures. Ajuster `Theme.scale` (0,58 est une valeur de départ) et, si besoin, les espacements des tâches 4 à 8. Toute valeur retenue qui s'écarte de la spec est reportée dans la spec à l'étape 4.
+Regarder les 18 captures. Ajuster `Theme.scale` (0,58 est une valeur de départ) et, si besoin, les espacements des tâches 4 à 8. Toute valeur retenue qui s'écarte de la spec est reportée dans la spec à l'étape 4.
 
 - [ ] **Étape 2 : non-régression sur l'appareil réel**
 

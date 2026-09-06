@@ -223,8 +223,9 @@ Dynamic Island. Aucun changement.
 
 Le repo n'a aucun test (le `WanderbackTests` mentionné dans le README n'existe pas), et
 la mise en page ne se teste pas utilement en unitaire. La validation est visuelle, en
-réutilisant les flags de debug déjà en place — `-demoMode`, `-noMosaic`,
-`-screen game|reveal|summary` :
+réutilisant les flags de debug déjà en place : `-demoMode`, `-noMosaic` et
+`-screen game|reveal|summary` dans `ContentView`, plus `-screen loading` et
+`-notEnoughPlaces` dans `PhotoLibraryViewModel` :
 
 1. Captures des 6 écrans au simulateur sur **iPhone 17** (402×874), **iPhone 17 Pro
    Max** (440×956) et **iPhone SE 3** (375×667). Le SE 3 est le pire cas : c'est le
