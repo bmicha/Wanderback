@@ -429,8 +429,15 @@ Remplacer le `HStack` du `body` par :
             Grid(horizontalSpacing: 12.scaled, verticalSpacing: 12.scaled) {
                 ForEach(Array(stride(from: 0, to: options.count, by: 2)), id: \.self) { row in
                     GridRow {
-                        ForEach(row ..< min(row + 2, options.count), id: \.self) { index in
-                            answerCard(options[index], index: index)
+                        // Les cartes gardent l'identité de leur donnée (comme la
+                        // branche rangée) et non leur position : un `id: \.self`
+                        // sur l'index ferait fuiter d'un round à l'autre tout
+                        // `@State` porté par une carte.
+                        ForEach(
+                            Array(options[row ..< min(row + 2, options.count)].enumerated()),
+                            id: \.element.id
+                        ) { offset, option in
+                            answerCard(option, index: row + offset)
                         }
                     }
                 }
