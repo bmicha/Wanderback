@@ -221,7 +221,9 @@ réutilisant les flags de debug déjà en place — `-demoMode`, `-noMosaic`,
 `-screen game|reveal|summary` :
 
 1. Captures des 6 écrans au simulateur sur **iPhone 17** (393×852), **iPhone 17 Pro
-   Max** (440×956) et **iPhone 16e** (375×812).
+   Max** (440×956) et **iPhone SE 3** (375×667). Le SE 3 est le pire cas : c'est le
+   plus petit appareil supporté par iOS 26, et il a 185 pt de hauteur de moins que
+   l'iPhone 17 — c'est lui qui contraint la hauteur cumulée de `HomeView`.
 2. Ajustement de `Theme.scale` et des paddings à l'œil.
 3. **Non-régression** : une capture iPad et une macOS, pour vérifier que
    `Device.isPhone` n'a rien déplacé ailleurs.
