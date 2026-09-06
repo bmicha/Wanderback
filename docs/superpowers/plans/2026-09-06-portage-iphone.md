@@ -1268,6 +1268,89 @@ gh pr create --title "Portage iPhone (cible universelle, portrait)" --body "…"
 
 ---
 
+---
+
+### Tâche 11 : cadrage de la photo au-dessus des réponses
+
+Livrable : sur iPhone, la photo du round ne passe plus derrière les cartes réponse.
+
+Ajoutée après la validation sur appareil réel : le défaut n'est visible qu'avec une
+vraie photo, donc ni le simulateur ni les revues ne pouvaient le montrer.
+
+**Fichiers :**
+- Modifier : `Wanderback/Views/GameView.swift` (`photoBackground`)
+
+**Interfaces :**
+- Consomme : `Device.isPhone` (tâche 2).
+
+- [ ] **Étape 1 : caler la photo nette au-dessus de la zone de réponses**
+
+Dans `photoBackground`, seul le **second** `Image` (celui en `aspectRatio(contentMode: .fit)`) change. Le premier — le fond flouté en `.fill` — reste plein écran, sans aucune modification : c'est lui qui remplit le cadre derrière la photo.
+
+```swift
+            GeometryReader { geometry in
+                // Sur iPhone en portrait, la grille de réponses occupe le bas de
+                // l'écran : la photo nette se cale dans l'espace au-dessus d'elle
+                // plutôt qu'au centre de l'écran, sinon une photo verticale descend
+                // derrière les cartes. Le fond flouté, lui, reste plein cadre.
+                let answersZone = Device.isPhone ? geometry.size.height * 0.28 : 0
+
+                ZStack {
+                    Image(platformImage: roundImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                        .scaleEffect(1.2)
+                        .blur(radius: 45)
+                        .overlay(Color.black.opacity(0.3))
+
+                    Image(platformImage: roundImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(
+                            width: geometry.size.width,
+                            height: geometry.size.height - answersZone
+                        )
+                        .shadow(color: .black.opacity(0.5), radius: 40)
+                        .frame(
+                            width: geometry.size.width,
+                            height: geometry.size.height,
+                            alignment: .top
+                        )
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+            }
+```
+
+Les deux `.frame` chaînés sur la photo nette agissent ensemble : le premier réduit la hauteur disponible, ce qui centre la photo dans la zone haute ; le second réinstalle un cadre pleine hauteur aligné en haut, pour que cette zone parte bien du sommet de l'écran. La photo n'est donc pas collée au bord haut — elle reste centrée, mais dans une zone plus courte.
+
+`answersZone` vaut `0` hors iPhone : le calcul se réduit alors à `geometry.size.height`, exactement le comportement d'origine sur tvOS, macOS et iPad.
+
+`0.28` est une valeur de départ — la zone de réponses occupe ~25 % de la hauteur en portrait (question, grille 2×2, marge basse, safe area), et cette marge supplémentaire laisse respirer. À ajuster à l'œil sur appareil réel.
+
+- [ ] **Étape 2 : build et non-régression**
+
+```bash
+export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+xcodebuild -project Wanderback.xcodeproj -scheme Wanderback \
+  -destination 'generic/platform=tvOS' -derivedDataPath .build-sim build 2>&1 | tail -1
+DD=/tmp/dd-ipad scripts/shot-ios.sh "iPad Pro 11-inch (M5)" /tmp/t11-ipad-jeu.png -demoMode -noMosaic -screen game
+```
+
+Attendu : build tvOS vert, et iPad strictement inchangé.
+
+**Le mode démo ne permet pas de vérifier ce changement** : sans vraie photo, `photoBackground` retombe sur son dégradé de remplacement et le cadrage n'a aucun effet observable. La validation se fait sur appareil réel, avec la photothèque de l'utilisateur.
+
+- [ ] **Étape 3 : commit**
+
+```bash
+git add -A
+git commit -m "Cadre la photo au-dessus des réponses sur iPhone"
+```
+
+
 ## Revue du plan
 
 **Couverture de la spec** — chaque composant de la spec est couvert : réglages de cible et renommage (T1), verrou d'orientation (T2), `Device.isPhone` (T2), `Theme.scale` (T2 puis calibrage T9), les huit blocs de layout (T3–T8), validation (T9), livraison (T10).

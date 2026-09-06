@@ -179,6 +179,18 @@ fait 402 ; le SE 3, cas contraignant, en fait 375).
   milieu de la photo n'a pas à être assombri.
 - `bottomSection` : `padding(.horizontal, 56 → 24)`.
 
+**Amendement (constaté sur appareil réel, après le portage)** — `GameView`,
+cadrage de la photo. La photo nette (`aspectRatio(.fit)`) est calée sur la hauteur
+totale de l'écran, donc centrée dessus. En paysage, la rangée de réponses est basse
+et la photo 16:9 ne l'atteint pas ; **en portrait, une photo verticale descend
+derrière les cartes réponse**. Sur iPhone, la photo nette se cale donc dans l'espace
+situé au-dessus de la zone de réponses plutôt qu'au centre de l'écran. Le fond flouté
+reste plein écran — c'est son rôle de remplir le cadre.
+
+Ce défaut n'était visible ni au simulateur ni en revue : le mode démo n'a pas de
+vraie photo (`DemoData` porte un `assetIdentifier` vide) et `photoBackground`
+retombe alors sur un dégradé de remplacement qui occupe l'écran entier.
+
 **`AnswerOptionsView`**
 
 Le corps de la carte est extrait dans une sous-vue `answerCard(option:index:)` ; le
