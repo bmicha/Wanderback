@@ -153,6 +153,10 @@ fait 402 ; le SE 3, cas contraignant, en fait 375).
   de partie et occupe ~130 pt sur les 393 disponibles. Cela supprime au passage le
   `#if os(iOS) .padding(.leading, 44)` qui n'existait que pour éviter la croix
   « fermer ». Libellé de round abrégé en « 3/10 », `spacing` 32 → 18.
+  **Amendement (tâche 9, calibrage final)** : marge horizontale `56 → 28` (et non
+  24, comme `bottomSection` ci-dessous) — sur iPhone SE, « 0 pts » frôlait le bord
+  droit avec 24. Débordement local à `topBar`, corrigé par sa seule marge ; `Theme.scale`
+  n'est pas en cause.
 - `scrim` : les stops `0.18` / `0.52` sont calés sur un canvas paysage → `0.10` / `0.66`
   sur iPhone. En portrait la zone de réponses est proportionnellement plus haute, et le
   milieu de la photo n'a pas à être assombri.

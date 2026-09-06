@@ -53,7 +53,8 @@ struct LoadingView: View {
             .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: isPulsing)
     }
 
-    /// Barre 900×12, pilule, remplissage dégradé signature
+    /// Barre pilule, remplissage dégradé signature — 900×12 pt sur TV/Mac/iPad ;
+    /// largeur fluide (padding 40) sur iPhone, hauteur inchangée à 12.
     private var progressBar: some View {
         ZStack(alignment: .leading) {
             Capsule()

@@ -120,7 +120,9 @@ struct GameView: View {
                 }
             }
         }
-        .padding(.horizontal, Device.isPhone ? 24.scaled : 56.scaled)
+        // Marge iPhone à 28 (et non 24, valeur de départ) : sur SE, « 0 pts »
+        // frôlait le bord droit — amendement relevé tâche 9.
+        .padding(.horizontal, Device.isPhone ? 28.scaled : 56.scaled)
         .padding(.vertical, 36.scaled)
     }
 
