@@ -144,7 +144,8 @@ static let scale: CGFloat = 1.0
 
 Convention de lecture : les changements notés `A → B` sont en **unités du canvas de
 design** (avant `.scaled`) ; les diagnostics chiffrés (« ~344 pt », « 522 pt ») sont en
-**points réels** sur un iPhone de 393 pt de large.
+**points réels** calculés sur une base prudente de 393 pt de large (l'iPhone 17 en
+fait 402 ; le SE 3, cas contraignant, en fait 375).
 
 **`GameView`**
 
@@ -225,7 +226,7 @@ la mise en page ne se teste pas utilement en unitaire. La validation est visuell
 réutilisant les flags de debug déjà en place — `-demoMode`, `-noMosaic`,
 `-screen game|reveal|summary` :
 
-1. Captures des 6 écrans au simulateur sur **iPhone 17** (393×852), **iPhone 17 Pro
+1. Captures des 6 écrans au simulateur sur **iPhone 17** (402×874), **iPhone 17 Pro
    Max** (440×956) et **iPhone SE 3** (375×667). Le SE 3 est le pire cas : c'est le
    plus petit appareil supporté par iOS 26, et il a 185 pt de hauteur de moins que
    l'iPhone 17 — c'est lui qui contraint la hauteur cumulée de `HomeView`.

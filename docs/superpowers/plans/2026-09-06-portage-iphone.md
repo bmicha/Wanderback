@@ -18,8 +18,8 @@
 - **Sources 100 % partagées** : aucun fichier de vue dupliqué pour l'iPhone. Le dossier `Wanderback/` est un `PBXFileSystemSynchronizedRootGroup` — tout nouveau `.swift` qu'on y dépose devient automatiquement membre des trois cibles, sans manipulation du pbxproj.
 - **`DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`** doit préfixer chaque commande `xcodebuild` / `xcrun` : le Xcode par défaut de la machine est un Command Line Tools sans SDK. Voir la mémoire `machine-macos27-beta-xcode-launch`.
 - **Ne pas toucher au rendu tvOS et macOS.** Toute branche introduite est gardée par `Device.isPhone`, qui vaut `false` hors iPhone. La tâche 9 le vérifie.
-- **Unités** : les valeurs `A → B` de ce plan sont en unités du canvas de design (avant `.scaled`) ; les diagnostics chiffrés en « pt » sont des points réels sur un iPhone 17 (393 pt de large).
-- **Simulateurs de référence** (déjà créés sur la machine) : `iPhone 17` (393×852), `iPhone 17 Pro Max` (440×956), `iPhone SE (3rd generation)` (375×667 — le pire cas).
+- **Unités** : les valeurs `A → B` de ce plan sont en unités du canvas de design (avant `.scaled`) ; les diagnostics chiffrés en « pt » sont des points réels calculés sur une **base de 393 pt de large**, la largeur d'un iPhone standard récent. C'est une borne prudente : l'iPhone 17 est un peu plus large (402 pt). Le cas réellement contraignant est le SE 3, à 375 pt.
+- **Simulateurs de référence** (déjà créés sur la machine) : `iPhone 17` (402×874 pt, capture 1206×2622 px), `iPhone 17 Pro Max` (440×956 pt), `iPhone SE (3rd generation)` (375×667 pt — le pire cas).
 
 ## Note sur le cycle de validation
 
@@ -352,7 +352,7 @@ scripts/shot-ios.sh "iPhone 17" /tmp/t2-accueil.png -demoMode -noMosaic
 
 Attendu, dans cet ordre de priorité :
 
-1. **La capture est en portrait** (1179×2556 px sur iPhone 17) — c'est ici que le verrou d'orientation de la tâche 1 est levé, et c'est le critère bloquant de cette tâche ;
+1. **La capture est en portrait** (1206×2622 px sur iPhone 17) — c'est ici que le verrou d'orientation de la tâche 1 est levé, et c'est le critère bloquant de cette tâche ;
 2. la typo est à une taille plausible pour un téléphone (le mot « WANDERBACK » du titre tient dans la largeur) ;
 3. le fond montre un vrai dégradé radial, sombre vers les bords.
 
