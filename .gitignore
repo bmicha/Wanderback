@@ -31,3 +31,4 @@ docs/appstore/
 
 # Artefacts d'exécution des plans (subagent-driven development)
 .superpowers/
+.build-sim/
