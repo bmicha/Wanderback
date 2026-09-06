@@ -35,6 +35,12 @@ struct GameView: View {
             // Photo entière (aspect fit) sur fond constitué de la même image
             // zoomée et floutée — indispensable pour les photos portrait
             GeometryReader { geometry in
+                // Sur iPhone en portrait, la grille de réponses occupe le bas de
+                // l'écran : la photo nette se cale dans l'espace au-dessus d'elle
+                // plutôt qu'au centre de l'écran, sinon une photo verticale descend
+                // derrière les cartes. Le fond flouté, lui, reste plein cadre.
+                let answersZone = Device.isPhone ? geometry.size.height * 0.28 : 0
+
                 ZStack {
                     Image(platformImage: roundImage)
                         .resizable()
@@ -48,8 +54,16 @@ struct GameView: View {
                     Image(platformImage: roundImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .frame(
+                            width: geometry.size.width,
+                            height: geometry.size.height - answersZone
+                        )
                         .shadow(color: .black.opacity(0.5), radius: 40)
+                        .frame(
+                            width: geometry.size.width,
+                            height: geometry.size.height,
+                            alignment: .top
+                        )
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
