@@ -28,3 +28,6 @@ Pods/
 
 # Captures App Store (24 Mo de PNG, présentes dans App Store Connect)
 docs/appstore/
+
+# Artefacts d'exécution des plans (subagent-driven development)
+.superpowers/
