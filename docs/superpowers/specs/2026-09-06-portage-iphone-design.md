@@ -234,7 +234,10 @@ réutilisant les flags de debug déjà en place — `-demoMode`, `-noMosaic`,
 3. **Non-régression** : une capture iPad et une macOS, pour vérifier que
    `Device.isPhone` n'a rien déplacé ailleurs.
 4. Validation sur l'iPhone réel — son UDID doit d'abord être enregistré au portail
-   développeur, comme l'a été « iPad de Bastien ».
+   développeur, comme l'a été « iPad de Bastien ». C'est aussi le seul endroit où la
+   rangée de vignettes « photos du même jour » de `RevealView` est observable :
+   `DemoData` porte un `assetIdentifier` vide, donc elles restent invisibles sur
+   toute capture de simulateur.
 
 ## Livraison
 

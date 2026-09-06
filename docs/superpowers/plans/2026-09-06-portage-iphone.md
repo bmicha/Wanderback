@@ -1127,6 +1127,8 @@ xcrun devicectl list devices
 
 L'enregistrer au portail développeur (POST `/v1/devices` de l'API App Store Connect, comme pour « iPad de Bastien » — cf. la mémoire `project-testflight-upload`), puis installer et jouer une vraie partie : c'est la seule validation qui exerce PhotoKit sur une vraie photothèque et le verrou portrait sur un appareil physique.
 
+**Point à vérifier obligatoirement ici, et nulle part ailleurs** : la rangée de vignettes « photos du même jour » de `RevealView`. `DemoData` fournit un `assetIdentifier` vide, donc `sameDayImages` reste toujours vide en mode démo — ces vignettes ne s'affichent sur aucune capture de simulateur, sur aucune plateforme. Leur empilement sous le bouton (tâche 5) n'a pu être validé que par lecture de code. Vérifier ici : trois vignettes sur une rangée, le libellé « photos du même jour » sous elles, le bouton en dessous, rien qui ne déborde.
+
 - [ ] **Étape 3 : non-régression tvOS, macOS, iPad**
 
 ```bash
