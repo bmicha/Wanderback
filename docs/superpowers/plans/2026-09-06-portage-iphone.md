@@ -168,7 +168,9 @@ Si l'environnement d'exécution refuse un `sleep` au premier plan, lancer le scr
 scripts/shot-ios.sh "iPhone 17" /tmp/t1-accueil.png -demoMode -noMosaic
 ```
 
-Attendu : `** BUILD SUCCEEDED **` puis un PNG **portrait** de 1179×2556 px. L'écran sera **visiblement cassé** — contenu débordant, texte trop gros, tuiles hors cadre : c'est normal et c'est la référence « avant » du portage. Le seul critère de cette étape est que l'app s'installe, se lance en portrait, et ne plante pas.
+Attendu : `** BUILD SUCCEEDED **` puis un PNG. L'écran sera **visiblement cassé** — contenu débordant, texte trop gros, tuiles hors cadre : c'est normal et c'est la référence « avant » du portage.
+
+La capture sera encore en **paysage** : `OrientationLockDelegate` force `.landscape` pour tout iOS et court-circuite l'Info.plist. Ce verrou est levé en tâche 2, qui est propriétaire de ce fichier. Le critère de cette étape est donc uniquement : l'app se construit, s'installe, se lance et ne plante pas.
 
 - [ ] **Étape 6 : commit**
 
@@ -317,7 +319,13 @@ Attendu : trois `** BUILD SUCCEEDED **`.
 scripts/shot-ios.sh "iPhone 17" /tmp/t2-accueil.png -demoMode -noMosaic
 ```
 
-Attendu : la typo est désormais à une taille plausible pour un téléphone (le mot « WANDERBACK » du titre tient dans la largeur) et le fond montre un vrai dégradé radial. Les tuiles de mode débordent encore latéralement — c'est la tâche 7.
+Attendu, dans cet ordre de priorité :
+
+1. **La capture est en portrait** (1179×2556 px sur iPhone 17) — c'est ici que le verrou d'orientation de la tâche 1 est levé, et c'est le critère bloquant de cette tâche ;
+2. la typo est à une taille plausible pour un téléphone (le mot « WANDERBACK » du titre tient dans la largeur) ;
+3. le fond montre un vrai dégradé radial, sombre vers les bords.
+
+Les tuiles de mode débordent encore latéralement — c'est la tâche 7.
 
 - [ ] **Étape 7 : commit**
 
