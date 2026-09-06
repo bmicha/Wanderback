@@ -32,46 +32,65 @@ struct NotEnoughPlacesView: View {
 
                 tipCard
 
-                HStack(spacing: 30.scaled) {
-                    Button("Voir comment faire") {
-                        withAnimation(Theme.focusAnimation) { showingHelp.toggle() }
-                    }
-                    .buttonStyle(SecondaryPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
-                    .macFocusable()
-                    .focused($focusedButton, equals: .help)
-                    .macFocusOnHover($focusedButton, equals: .help)
-
-                    Button {
-                        viewModel.startDemoMode()
-                    } label: {
-                        HStack(spacing: 12.scaled) {
-                            Text("Mode démo")
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 18.scaled))
+                actionButtons
+                    .padding(.top, 8.scaled)
+                    #if os(macOS)
+                    .macMoveCommand { direction in
+                        switch (focusedButton, direction) {
+                        case (.demo, .left):
+                            focusedButton = .help
+                        case (.help, .right):
+                            focusedButton = .demo
+                        default:
+                            break
                         }
                     }
-                    .buttonStyle(GradientPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
-                    .macFocusable()
-                    .focused($focusedButton, equals: .demo)
-                    .macFocusOnHover($focusedButton, equals: .demo)
-                }
-                .padding(.top, 8.scaled)
-                #if os(macOS)
-                .macMoveCommand { direction in
-                    switch (focusedButton, direction) {
-                    case (.demo, .left):
-                        focusedButton = .help
-                    case (.help, .right):
-                        focusedButton = .demo
-                    default:
-                        break
-                    }
-                }
-                #endif
+                    #endif
             }
-            .padding(.horizontal, 200.scaled)
+            .padding(.horizontal, (Device.isPhone ? 24 : 200).scaled)
         }
         .initialFocus($focusedButton, .demo)
+    }
+
+    private var helpButton: some View {
+        Button("Voir comment faire") {
+            withAnimation(Theme.focusAnimation) { showingHelp.toggle() }
+        }
+        .buttonStyle(SecondaryPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
+        .macFocusable()
+        .focused($focusedButton, equals: .help)
+        .macFocusOnHover($focusedButton, equals: .help)
+    }
+
+    private var demoButton: some View {
+        Button {
+            viewModel.startDemoMode()
+        } label: {
+            HStack(spacing: 12.scaled) {
+                Text("Mode démo")
+                Image(systemName: "play.fill")
+                    .font(.system(size: 18.scaled))
+            }
+        }
+        .buttonStyle(GradientPillButtonStyle(horizontalPadding: 44, verticalPadding: 18, fontSize: 24))
+        .macFocusable()
+        .focused($focusedButton, equals: .demo)
+        .macFocusOnHover($focusedButton, equals: .demo)
+    }
+
+    @ViewBuilder
+    private var actionButtons: some View {
+        if Device.isPhone {
+            VStack(spacing: 16.scaled) {
+                helpButton
+                demoButton
+            }
+        } else {
+            HStack(spacing: 30.scaled) {
+                helpButton
+                demoButton
+            }
+        }
     }
 
     /// Pastille 120 : cercle translucide + point erreur.

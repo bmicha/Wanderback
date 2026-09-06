@@ -75,7 +75,9 @@ struct LoadingView: View {
                     .animation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: isPulsing)
             }
         }
-        .frame(width: 900.scaled, height: 12.scaled)
+        .frame(width: Device.isPhone ? nil : 900.scaled, height: 12.scaled)
+        .frame(maxWidth: Device.isPhone ? .infinity : nil)
+        .padding(.horizontal, Device.isPhone ? 40.scaled : 0)
     }
 }
 

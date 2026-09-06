@@ -131,7 +131,7 @@ struct ContentView: View {
                 .font(.system(size: 28.scaled))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 200.scaled)
+                .padding(.horizontal, (Device.isPhone ? 24 : 200).scaled)
         }
     }
 }
