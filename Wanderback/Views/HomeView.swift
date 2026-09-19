@@ -22,7 +22,7 @@ struct HomeView: View {
             SceneBackground()
             mosaicBackground
 
-            VStack(spacing: 44.scaled) {
+            VStack(spacing: (Device.isPhone ? 26 : 44).scaled) {
                 header
                 modeSelection
                 roundsSelection
@@ -37,6 +37,7 @@ struct HomeView: View {
             #if os(macOS)
             .macShortcutAction(.space) { activateFocusedElement() }
             #endif
+            .padding(.horizontal, Device.isPhone ? 24.scaled : 0)
         }
         .initialFocus($focusedElement, .play)
         .task {
@@ -139,14 +140,17 @@ struct HomeView: View {
             }
             .opacity(0.6)
             .overlay(
+                // Rayons en points bruts : ils doivent couvrir l'écran, pas le canvas
+                // de design — un rayon passé par `.scaled` resterait calibré sur le
+                // canvas TV et ne couvrirait jamais un écran iPhone plus petit.
                 RadialGradient(
                     colors: [
                         Color(hex: 0x232048).opacity(0.88),
                         Color(hex: 0x131226).opacity(0.96)
                     ],
                     center: .center,
-                    startRadius: 200,
-                    endRadius: 1300
+                    startRadius: Device.isPhone ? 60 : 200,
+                    endRadius: Device.isPhone ? 480 : 1300
                 )
             )
         }
@@ -182,40 +186,62 @@ struct HomeView: View {
     // MARK: - Tuiles mode
 
     private var modeSelection: some View {
-        HStack(spacing: 34.scaled) {
-            ForEach(GameMode.allCases) { mode in
-                Button {
-                    activate(.mode(mode))
-                } label: {
-                    modeTileLabel(mode)
-                }
-                .buttonStyle(ModeTileButtonStyle(isSelected: selectedMode == mode, mode: mode))
-                .macFocusable()
-                .focused($focusedElement, equals: .mode(mode))
-                .macFocusOnHover($focusedElement, equals: .mode(mode))
+        let tiles = ForEach(GameMode.allCases) { mode in
+            Button {
+                activate(.mode(mode))
+            } label: {
+                modeTileLabel(mode)
+            }
+            .buttonStyle(ModeTileButtonStyle(isSelected: selectedMode == mode, mode: mode))
+            .macFocusable()
+            .focused($focusedElement, equals: .mode(mode))
+            .macFocusOnHover($focusedElement, equals: .mode(mode))
+        }
+
+        return Group {
+            if Device.isPhone {
+                VStack(spacing: 16.scaled) { tiles }
+            } else {
+                HStack(spacing: 34.scaled) { tiles }
             }
         }
     }
 
     private func modeTileLabel(_ mode: GameMode) -> some View {
-        VStack(alignment: .leading, spacing: 16.scaled) {
-            Image(systemName: mode.icon)
-                .font(.system(size: 24.scaled))
-                .foregroundStyle(.white)
-                .frame(width: 52.scaled, height: 52.scaled)
-                .background(Color.white.opacity(0.25), in: Circle())
+        let icon = Image(systemName: mode.icon)
+            .font(.system(size: 24.scaled))
+            .foregroundStyle(.white)
+            .frame(width: 52.scaled, height: 52.scaled)
+            .background(Color.white.opacity(0.25), in: Circle())
 
-            VStack(alignment: .leading, spacing: 6.scaled) {
-                Text(mode.title)
-                    .font(.system(size: 34.scaled, weight: .heavy))
-                Text(mode.subtitle)
-                    .font(.system(size: 22.scaled))
-                    .foregroundStyle(.white.opacity(0.75))
+        let text = VStack(alignment: .leading, spacing: 6.scaled) {
+            Text(mode.title)
+                .font(.system(size: 34.scaled, weight: .heavy))
+            Text(mode.subtitle)
+                .font(.system(size: 22.scaled))
+                .foregroundStyle(.white.opacity(0.75))
+        }
+
+        return Group {
+            if Device.isPhone {
+                // Tuile pleine largeur : icône à gauche plutôt qu'au-dessus, pour
+                // économiser la hauteur — critique sur iPhone SE (667 pt).
+                HStack(spacing: 16.scaled) {
+                    icon
+                    text
+                    Spacer(minLength: 0)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 16.scaled) {
+                    icon
+                    text
+                }
+                .frame(width: (500 - 2 * 34).scaled, alignment: .leading)
             }
         }
         .foregroundStyle(.white)
-        .frame(width: (500 - 2 * 34).scaled, alignment: .leading)
-        .padding(34.scaled)
+        .frame(maxWidth: Device.isPhone ? .infinity : nil, alignment: .leading)
+        .padding(Device.isPhone ? 22.scaled : 34.scaled)
     }
 
     // MARK: - Rounds

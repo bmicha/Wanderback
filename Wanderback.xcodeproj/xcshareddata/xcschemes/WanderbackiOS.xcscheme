@@ -6,7 +6,7 @@
             <BuildableReference BuildableIdentifier = "primary"
                BlueprintIdentifier = "AD0000000000000000000001"
                BuildableName = "Wanderback.app"
-               BlueprintName = "WanderbackPad"
+               BlueprintName = "WanderbackiOS"
                ReferencedContainer = "container:Wanderback.xcodeproj"/>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -17,7 +17,7 @@
          <BuildableReference BuildableIdentifier = "primary"
             BlueprintIdentifier = "AD0000000000000000000001"
             BuildableName = "Wanderback.app"
-            BlueprintName = "WanderbackPad"
+            BlueprintName = "WanderbackiOS"
             ReferencedContainer = "container:Wanderback.xcodeproj"/>
       </BuildableProductRunnable>
    </LaunchAction>

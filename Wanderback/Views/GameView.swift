@@ -35,6 +35,14 @@ struct GameView: View {
             // Photo entière (aspect fit) sur fond constitué de la même image
             // zoomée et floutée — indispensable pour les photos portrait
             GeometryReader { geometry in
+                // Sur iPhone, la barre de jeu occupe le haut de l'écran et la grille
+                // de réponses le bas : la photo nette se centre dans l'espace libre
+                // entre les deux, et non au milieu de l'écran. Sans la réserve haute,
+                // une photo horizontale — qui n'a jamais atteint les cartes — serait
+                // remontée pour rien. Le fond flouté, lui, reste plein cadre.
+                let topZone = Device.isPhone ? geometry.size.height * 0.14 : 0
+                let answersZone = Device.isPhone ? geometry.size.height * 0.28 : 0
+
                 ZStack {
                     Image(platformImage: roundImage)
                         .resizable()
@@ -48,8 +56,10 @@ struct GameView: View {
                     Image(platformImage: roundImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
                         .shadow(color: .black.opacity(0.5), radius: 40)
+                        .padding(.top, topZone)
+                        .padding(.bottom, answersZone)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
@@ -66,12 +76,14 @@ struct GameView: View {
     }
 
     /// Scrim vertical : sombre en haut, transparent au centre, très sombre en bas.
+    /// En portrait la zone de réponses occupe une part plus haute de l'écran : le
+    /// dégradé bas démarre plus tard pour ne pas voiler le centre de la photo.
     private var scrim: some View {
         LinearGradient(
             stops: [
                 .init(color: scrimColor.opacity(0.6), location: 0),
-                .init(color: .clear, location: 0.18),
-                .init(color: .clear, location: 0.52),
+                .init(color: .clear, location: Device.isPhone ? 0.10 : 0.18),
+                .init(color: .clear, location: Device.isPhone ? 0.66 : 0.52),
                 .init(color: scrimColor.opacity(0.92), location: 1)
             ],
             startPoint: .top,
@@ -83,18 +95,30 @@ struct GameView: View {
 
     private var topBar: some View {
         HStack {
-            GradientText(text: "WANDERBACK", size: 28, tracking: -0.5)
-                // Sur iPad, la croix « fermer » flotte en overlay top-leading
-                // (ContentView) par-dessus cette barre : marge additionnelle
-                // pour éviter qu'elle ne chevauche le "W" du logo.
-                #if os(iOS)
-                .padding(.leading, 44.scaled)
-                #endif
+            // Sur iPhone, la largeur est comptée : le logo cède la place au chrono
+            // et au score, et la croix « fermer » (overlay de ContentView) occupe
+            // seule le coin haut gauche.
+            if !Device.isPhone {
+                GradientText(text: "WANDERBACK", size: 28, tracking: -0.5)
+                    // Sur iPad, la croix « fermer » flotte en overlay top-leading
+                    // (ContentView) par-dessus cette barre : marge additionnelle
+                    // pour éviter qu'elle ne chevauche le "W" du logo. Ce `#if
+                    // os(iOS)` n'existe tout simplement pas dans les builds
+                    // tvOS/macOS (ce n'est pas une histoire de croix absente
+                    // là-bas) ; sur iOS, il ne s'applique qu'à l'iPad puisque
+                    // le `if !Device.isPhone` englobant exclut déjà l'iPhone.
+                    #if os(iOS)
+                    .padding(.leading, 44.scaled)
+                    #endif
+            }
 
             Spacer()
 
-            HStack(spacing: 32.scaled) {
-                Text("Round \(Text("\(currentRoundNumber)").bold())/\(totalRounds)")
+            HStack(spacing: Device.isPhone ? 18.scaled : 32.scaled) {
+                // Le numéro courant reste en gras dans les deux variantes
+                Text(Device.isPhone
+                     ? "\(Text("\(currentRoundNumber)").bold())/\(totalRounds)"
+                     : "Round \(Text("\(currentRoundNumber)").bold())/\(totalRounds)")
                     .font(.system(size: 24.scaled))
                     .foregroundStyle(Theme.textSecondary)
 
@@ -107,7 +131,9 @@ struct GameView: View {
                 }
             }
         }
-        .padding(.horizontal, 56.scaled)
+        // Marge iPhone à 28 (et non 24, valeur de départ) : sur SE, « 0 pts »
+        // frôlait le bord droit — amendement relevé tâche 9.
+        .padding(.horizontal, Device.isPhone ? 28.scaled : 56.scaled)
         .padding(.vertical, 36.scaled)
     }
 
@@ -148,7 +174,7 @@ struct GameView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 56.scaled)
+        .padding(.horizontal, Device.isPhone ? 24.scaled : 56.scaled)
         .padding(.bottom, 44.scaled)
     }
 

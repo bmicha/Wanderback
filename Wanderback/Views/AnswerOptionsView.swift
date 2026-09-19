@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Grille 4 colonnes de cartes réponse (ville + pays).
+/// Cartes réponse (ville + pays) : rangée de 4 sur TV/Mac/iPad, grille 2×2 sur iPhone.
 struct AnswerOptionsView: View {
     let options: [LocationCluster]
     let onSelect: (LocationCluster) -> Void
@@ -8,32 +8,7 @@ struct AnswerOptionsView: View {
     @FocusState private var focusedOption: UUID?
 
     var body: some View {
-        HStack(spacing: 24.scaled) {
-            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                Button {
-                    onSelect(option)
-                } label: {
-                    VStack(alignment: .leading, spacing: 6.scaled) {
-                        Text(option.displayName)
-                            .font(.system(size: 28.scaled, weight: .heavy))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                        Text(option.country)
-                            .font(.system(size: 21.scaled))
-                            .opacity(0.6)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 28.scaled)
-                    .padding(.vertical, 24.scaled)
-                }
-                .buttonStyle(AnswerCardButtonStyle())
-                .macFocusable()
-                .focused($focusedOption, equals: option.id)
-                .macFocusOnHover($focusedOption, equals: option.id)
-                .macKeyboardShortcut(Character("\(index + 1)"))
-            }
-        }
+        optionsContainer
         #if os(macOS)
         .macMoveCommand { direction in
             guard let currentIndex = options.firstIndex(where: { $0.id == focusedOption }) else { return }
@@ -57,6 +32,62 @@ struct AnswerOptionsView: View {
             }
         }
         #endif
+    }
+
+    /// Sur iPhone en portrait, les 4 cartes ne tiennent pas sur une rangée
+    /// (~85 pt chacune) : grille 2×2. Ailleurs, la rangée du design d'origine.
+    @ViewBuilder
+    private var optionsContainer: some View {
+        if Device.isPhone {
+            Grid(horizontalSpacing: 12.scaled, verticalSpacing: 12.scaled) {
+                ForEach(Array(stride(from: 0, to: options.count, by: 2)), id: \.self) { row in
+                    GridRow {
+                        // Les cartes gardent l'identité de leur donnée (comme la
+                        // branche rangée) et non leur position : un `id: \.self`
+                        // sur l'index ferait fuiter d'un round à l'autre tout
+                        // `@State` porté par une carte.
+                        ForEach(
+                            Array(options[row ..< min(row + 2, options.count)].enumerated()),
+                            id: \.element.id
+                        ) { offset, option in
+                            answerCard(option, index: row + offset)
+                        }
+                    }
+                }
+            }
+        } else {
+            HStack(spacing: 24.scaled) {
+                ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+                    answerCard(option, index: index)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func answerCard(_ option: LocationCluster, index: Int) -> some View {
+        Button {
+            onSelect(option)
+        } label: {
+            VStack(alignment: .leading, spacing: 6.scaled) {
+                Text(option.displayName)
+                    .font(.system(size: 28.scaled, weight: .heavy))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(option.country)
+                    .font(.system(size: 21.scaled))
+                    .opacity(0.6)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 28.scaled)
+            .padding(.vertical, 24.scaled)
+        }
+        .buttonStyle(AnswerCardButtonStyle())
+        .macFocusable()
+        .focused($focusedOption, equals: option.id)
+        .macFocusOnHover($focusedOption, equals: option.id)
+        .macKeyboardShortcut(Character("\(index + 1)"))
     }
 }
 

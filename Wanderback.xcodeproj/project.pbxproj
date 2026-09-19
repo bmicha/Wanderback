@@ -20,12 +20,12 @@
 			);
 			target = AC0000000000000000000001 /* WanderbackMac */;
 		};
-		AD0000000000000000000009 /* Exceptions for "Wanderback" folder in "WanderbackPad" target */ = {
+		AD0000000000000000000009 /* Exceptions for "Wanderback" folder in "WanderbackiOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				LaunchScreen.storyboard,
 			);
-			target = AD0000000000000000000001 /* WanderbackPad */;
+			target = AD0000000000000000000001 /* WanderbackiOS */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -34,7 +34,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				AC0000000000000000000009 /* Exceptions for "Wanderback" folder in "WanderbackMac" target */,
-				AD0000000000000000000009 /* Exceptions for "Wanderback" folder in "WanderbackPad" target */,
+				AD0000000000000000000009 /* Exceptions for "Wanderback" folder in "WanderbackiOS" target */,
 			);
 			path = Wanderback;
 			sourceTree = "<group>";
@@ -131,9 +131,9 @@
 			productReference = AC0000000000000000000002 /* Wanderback.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AD0000000000000000000001 /* WanderbackPad */ = {
+		AD0000000000000000000001 /* WanderbackiOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AD0000000000000000000006 /* Build configuration list for PBXNativeTarget "WanderbackPad" */;
+			buildConfigurationList = AD0000000000000000000006 /* Build configuration list for PBXNativeTarget "WanderbackiOS" */;
 			buildPhases = (
 				AD0000000000000000000003 /* Sources */,
 				AD0000000000000000000004 /* Frameworks */,
@@ -146,10 +146,10 @@
 			fileSystemSynchronizedGroups = (
 				3F0A46732F65D3A100A3FD2D /* Wanderback */,
 			);
-			name = WanderbackPad;
+			name = WanderbackiOS;
 			packageProductDependencies = (
 			);
-			productName = WanderbackPad;
+			productName = WanderbackiOS;
 			productReference = AD0000000000000000000002 /* Wanderback.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -192,7 +192,7 @@
 			targets = (
 				3F0A46702F65D3A100A3FD2D /* Wanderback */,
 				AC0000000000000000000001 /* WanderbackMac */,
-				AD0000000000000000000001 /* WanderbackPad */,
+				AD0000000000000000000001 /* WanderbackiOS */,
 			);
 		};
 /* End PBXProject section */
@@ -378,7 +378,7 @@
 				CODE_SIGN_ENTITLEMENTS = Wanderback/Wanderback.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -413,7 +413,7 @@
 				CODE_SIGN_ENTITLEMENTS = Wanderback/Wanderback.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -448,7 +448,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -484,7 +484,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -518,10 +518,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/WanderbackiOS-Info.plist";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.family-games";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Wanderback utilise vos photos pour créer un jeu de devinettes basé sur les lieux où elles ont été prises.";
@@ -529,6 +530,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -545,7 +547,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -556,10 +558,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = XKFAS389Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/WanderbackiOS-Info.plist";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.family-games";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Wanderback utilise vos photos pour créer un jeu de devinettes basé sur les lieux où elles ont été prises.";
@@ -567,6 +570,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -583,7 +587,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -617,7 +621,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AD0000000000000000000006 /* Build configuration list for PBXNativeTarget "WanderbackPad" */ = {
+		AD0000000000000000000006 /* Build configuration list for PBXNativeTarget "WanderbackiOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AD0000000000000000000007 /* Debug */,

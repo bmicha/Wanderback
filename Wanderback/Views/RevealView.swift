@@ -45,14 +45,22 @@ struct RevealView: View {
 
             VStack {
                 Spacer()
-                HStack(alignment: .bottom) {
-                    sameDayThumbnails
-                    Spacer()
-                    nextButton
+                if Device.isPhone {
+                    // 344 pt de vignettes + le bouton ne tiennent pas sur une rangée
+                    VStack(spacing: 20.scaled) {
+                        sameDayThumbnails
+                        nextButton
+                    }
+                } else {
+                    HStack(alignment: .bottom) {
+                        sameDayThumbnails
+                        Spacer()
+                        nextButton
+                    }
                 }
-                .padding(.horizontal, 56.scaled)
-                .padding(.bottom, 44.scaled)
             }
+            .padding(.horizontal, (Device.isPhone ? 24 : 56).scaled)
+            .padding(.bottom, 44.scaled)
             .tvIgnoresSafeArea()
         }
         .initialFocus($nextButtonFocused, true)
@@ -89,6 +97,7 @@ struct RevealView: View {
     }
 
     /// Vignette radiale sombre sur les bords de la carte.
+    /// Rayons en points bruts : ils doivent couvrir l'écran, pas le canvas de design.
     private var vignette: some View {
         RadialGradient(
             stops: [
@@ -97,8 +106,8 @@ struct RevealView: View {
                 .init(color: Theme.backgroundBottom.opacity(0.88), location: 1)
             ],
             center: .center,
-            startRadius: 200,
-            endRadius: 1200
+            startRadius: Device.isPhone ? 60 : 200,
+            endRadius: Device.isPhone ? 440 : 1200
         )
         .allowsHitTesting(false)
     }
@@ -146,7 +155,7 @@ struct RevealView: View {
     private var centerContent: some View {
         VStack(spacing: 16.scaled) {
             Text(round?.correctAnswer.displayName.uppercased() ?? "")
-                .font(.system(size: 104.scaled, weight: .heavy))
+                .font(.system(size: (Device.isPhone ? 76 : 104).scaled, weight: .heavy))
                 .tracking(4)
                 .foregroundStyle(.white)
                 .lineLimit(1)
@@ -167,7 +176,7 @@ struct RevealView: View {
                     .padding(.top, 8.scaled)
             }
         }
-        .padding(.horizontal, 70.scaled)
+        .padding(.horizontal, (Device.isPhone ? 32 : 70).scaled)   // padding interne du cartouche
         .padding(.vertical, 40.scaled)
         .background {
             // Cartouche translucide : garde titre, lieu et date lisibles sur la carte
@@ -180,8 +189,8 @@ struct RevealView: View {
                 .strokeBorder(Color.white.opacity(0.14), lineWidth: 2)
         )
         .shadow(color: Theme.tileShadow, radius: 30, y: 20)
-        .padding(.top, 280.scaled) // sous le pin, remonté dans le tiers haut de la carte
-        .padding(.horizontal, 100.scaled)
+        .padding(.top, (Device.isPhone ? 190 : 280).scaled)  // sous le pin
+        .padding(.horizontal, (Device.isPhone ? 24 : 100).scaled)
         .opacity(contentRevealed ? 1 : 0)
         .offset(y: contentRevealed ? 0 : 30)
     }
@@ -204,12 +213,15 @@ struct RevealView: View {
     @ViewBuilder
     private var sameDayThumbnails: some View {
         if !sameDayImages.isEmpty {
-            HStack(alignment: .bottom, spacing: 14.scaled) {
+            let side: (width: CGFloat, height: CGFloat) =
+                Device.isPhone ? (110, 74) : (148, 100)
+
+            let row = HStack(alignment: .bottom, spacing: 14.scaled) {
                 ForEach(Array(sameDayImages.enumerated()), id: \.offset) { _, image in
                     Image(platformImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 148.scaled, height: 100.scaled)
+                        .frame(width: side.width.scaled, height: side.height.scaled)
                         .clipShape(RoundedRectangle(cornerRadius: 14.scaled))
                         .overlay(
                             RoundedRectangle(cornerRadius: 14.scaled)
@@ -217,10 +229,27 @@ struct RevealView: View {
                         )
                 }
 
-                Text("photos du\nmême jour")
-                    .font(.system(size: 19.scaled))
-                    .foregroundStyle(Theme.textTertiary)
-                    .padding(.leading, 6.scaled)
+                // Sur iPhone le libellé passe sous la rangée : à droite, il la
+                // pousserait hors de l'écran.
+                if !Device.isPhone {
+                    Text("photos du\nmême jour")
+                        .font(.system(size: 19.scaled))
+                        .foregroundStyle(Theme.textTertiary)
+                        .padding(.leading, 6.scaled)
+                }
+            }
+
+            Group {
+                if Device.isPhone {
+                    VStack(spacing: 8.scaled) {
+                        row
+                        Text("photos du même jour")
+                            .font(.system(size: 19.scaled))
+                            .foregroundStyle(Theme.textTertiary)
+                    }
+                } else {
+                    row
+                }
             }
             .opacity(contentRevealed ? 1 : 0)
         }
